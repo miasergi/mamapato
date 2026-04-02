@@ -7,9 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+const DEMO_EMAIL = 'admin@mamapato.es'
+const DEMO_PASSWORD = 'admin123'
+
 export function LoginForm() {
-  const [email, setEmail]       = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail]       = useState(DEMO_MODE ? DEMO_EMAIL : '')
+  const [password, setPassword] = useState(DEMO_MODE ? DEMO_PASSWORD : '')
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState<string | null>(null)
   const router = useRouter()
@@ -19,6 +23,19 @@ export function LoginForm() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
+    if (DEMO_MODE) {
+      if (email !== DEMO_EMAIL || password !== DEMO_PASSWORD) {
+        setError(`Modo demo: usa ${DEMO_EMAIL} / ${DEMO_PASSWORD}`)
+        setLoading(false)
+        return
+      }
+      // Set demo session cookie via API route
+      await fetch('/api/demo-login', { method: 'POST' })
+      router.push('/dashboard')
+      router.refresh()
+      return
+    }
 
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
 

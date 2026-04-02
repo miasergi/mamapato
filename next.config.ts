@@ -7,9 +7,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'mamapato.es' },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['papaparse'],
-  },
+  serverExternalPackages: ['papaparse'],
 }
 
 export default nextConfig

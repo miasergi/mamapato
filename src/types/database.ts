@@ -160,6 +160,7 @@ export interface BirthListSummary {
   birth_month:     string | null
   public_slug:     string
   status:          BirthListStatus
+  updated_at:      string
   total_items:     number
   total_value:     number
   available:       number

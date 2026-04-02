@@ -81,6 +81,7 @@ export const BIRTH_LIST_STATUS_LABELS: Record<string, { label: string; color: st
 export const VOUCHER_STATUS_LABELS: Record<string, { label: string; color: string }> = {
   active:    { label: 'Activo',    color: 'bg-green-100 text-green-800' },
   exhausted: { label: 'Agotado',   color: 'bg-gray-100 text-gray-600' },
+  depleted:  { label: 'Agotado',   color: 'bg-gray-100 text-gray-600' },
   expired:   { label: 'Expirado',  color: 'bg-red-100 text-red-700' },
   cancelled: { label: 'Cancelado', color: 'bg-red-100 text-red-700' },
 }
@@ -97,16 +98,16 @@ export function normalizeOntarioStock(raw: string | number): number {
   return isNaN(n) ? 0 : Math.max(n, -9999)  // keep real value, UI handles display
 }
 
+/** Integer percentage (0-100), safe for 0 denominator */
+export function pct(numerator: number, denominator: number): number {
+  if (!denominator) return 0
+  return Math.min(100, Math.round((numerator / denominator) * 100))
+}
+
 /**
  * Returns true when a product sourced from Ontario
  * should be shown as "Pendiente de Pedido" in UI.
  */
 export function isPendingOrder(stock: number): boolean {
   return stock <= 0
-}
-
-// ── Percentage helper ────────────────────────────────────────
-export function pct(part: number, total: number): number {
-  if (total === 0) return 0
-  return Math.round((part / total) * 100)
 }

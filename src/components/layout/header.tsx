@@ -6,12 +6,18 @@ import { useRouter } from 'next/navigation'
 import { LogOut, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+
 export function Header({ user }: { user: User }) {
   const router = useRouter()
   const supabase = createClient()
 
   async function handleSignOut() {
-    await supabase.auth.signOut()
+    if (DEMO_MODE) {
+      await fetch('/api/demo-logout', { method: 'POST' })
+    } else {
+      await supabase.auth.signOut()
+    }
     router.push('/login')
     router.refresh()
   }

@@ -1,9 +1,8 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // ── Demo mode: use a simple cookie session ──────────────────────────────
   if (DEMO_MODE) {
     const isLoggedIn = request.cookies.get('demo_session')?.value === 'ok'
@@ -21,6 +20,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── Production: Supabase auth ────────────────────────────────────────────
+  const { createServerClient } = await import('@supabase/ssr')
   let supabaseResponse = NextResponse.next({ request })
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

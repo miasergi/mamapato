@@ -1,9 +1,16 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { createMockClient } from './mock'
+
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
 export async function createClient() {
-  const cookieStore = await cookies()
+  if (DEMO_MODE) return createMockClient() as ReturnType<typeof _createRealClient>
+  return _createRealClient()
+}
 
+async function _createRealClient() {
+  const cookieStore = await cookies()
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -26,6 +33,7 @@ export async function createClient() {
 
 /** Service-role client – NEVER expose to the browser */
 export function createServiceClient() {
+  if (DEMO_MODE) return createMockClient()
   const { createClient } = require('@supabase/supabase-js')
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
