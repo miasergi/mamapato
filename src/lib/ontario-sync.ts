@@ -52,7 +52,7 @@ export async function processOntarioCSV(
   const parsed = Papa.parse<Record<string, string>>(csvContent, {
     header:        true,
     skipEmptyLines: true,
-    transformHeader: (h) => h.trim(),
+    transformHeader: (h: string) => h.trim(),
   })
 
   const result: SyncResult = {
@@ -76,8 +76,9 @@ export async function processOntarioCSV(
 
   if (fetchError) throw new Error(`Error fetching products: ${fetchError.message}`)
 
-  const productMap = new Map<string, Pick<Product, 'id' | 'sku' | 'stock_store' | 'name' | 'price'>>(
-    (existingProducts ?? []).map((p) => [p.sku, p])
+  type ProductRow = Pick<Product, 'id' | 'sku' | 'stock_store' | 'name' | 'price'>
+  const productMap = new Map<string, ProductRow>(
+    (existingProducts ?? []).map((p: ProductRow) => [p.sku, p])
   )
 
   const toCreate: Partial<Product>[] = []
