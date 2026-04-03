@@ -1,25 +1,26 @@
-'use client'
+﻿'use client'
 
-import type { User } from '@supabase/supabase-js'
-import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { LogOut, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+const SESSION_KEY = 'mp_session'
 
-export function Header({ user }: { user: User }) {
+export function Header() {
   const router = useRouter()
-  const supabase = createClient()
+  const [email, setEmail] = useState<string>('')
 
-  async function handleSignOut() {
-    if (DEMO_MODE) {
-      await fetch('/api/demo-logout', { method: 'POST' })
-    } else {
-      await supabase.auth.signOut()
-    }
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY)
+      if (raw) setEmail(JSON.parse(raw).email ?? '')
+    } catch {}
+  }, [])
+
+  function handleSignOut() {
+    localStorage.removeItem(SESSION_KEY)
     router.push('/login')
-    router.refresh()
   }
 
   return (
@@ -29,9 +30,9 @@ export function Header({ user }: { user: User }) {
         <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-500" aria-label="Notificaciones">
           <Bell className="h-5 w-5" />
         </button>
-        <span className="text-sm text-muted-foreground hidden sm:inline">
-          {user.email}
-        </span>
+        {email && (
+          <span className="text-sm text-muted-foreground hidden sm:inline">{email}</span>
+        )}
         <Button variant="ghost" size="icon" onClick={handleSignOut} title="Cerrar sesión">
           <LogOut className="h-4 w-4" />
         </Button>

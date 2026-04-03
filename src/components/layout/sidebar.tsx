@@ -11,17 +11,23 @@ import {
   ArrowUpDown,
   ScanBarcode,
   Settings,
+  Users,
+  Truck,
+  Tag,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { href: '/dashboard',            label: 'Inicio',               icon: LayoutDashboard },
-  { href: '/dashboard/birth-lists',label: 'Listas de Nacimiento', icon: Baby },
-  { href: '/dashboard/vouchers',   label: 'Vales Regalo',         icon: Gift },
-  { href: '/dashboard/products',   label: 'Productos',            icon: Package },
-  { href: '/dashboard/sync',       label: 'Sincronización',       icon: ArrowUpDown },
-  { href: '/dashboard/scanner',    label: 'Recepción Mercancía',  icon: ScanBarcode },
-  { href: '/dashboard/settings',   label: 'Ajustes',              icon: Settings },
+  { href: '/dashboard',               label: 'Inicio',               icon: LayoutDashboard },
+  { href: '/dashboard/birth-lists',   label: 'Listas de Nacimiento', icon: Baby },
+  { href: '/dashboard/vouchers',      label: 'Vales Regalo',         icon: Gift },
+  { href: '/dashboard/products',      label: 'Productos',            icon: Package },
+  { href: '/dashboard/customers',     label: 'Personas',             icon: Users },
+  { href: '/dashboard/suppliers',     label: 'Proveedores',          icon: Truck },
+  { href: '/dashboard/categories',    label: 'Categorías',           icon: Tag },
+  { href: '/dashboard/sync',          label: 'Sincronización',       icon: ArrowUpDown },
+  { href: '/dashboard/scanner',       label: 'Recepción Mercancía',  icon: ScanBarcode },
+  { href: '/dashboard/settings',      label: 'Ajustes',              icon: Settings },
 ]
 
 export function Sidebar() {

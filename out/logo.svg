@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" width="200" height="160">
+  <!-- Organic blob shape (duck silhouette style) -->
+  <path d="M 30 140 C 10 140 5 120 5 100 C 5 70 8 50 20 35 C 35 18 60 10 100 10 C 140 10 165 18 180 35 C 192 50 195 70 195 100 C 195 120 190 140 170 140 C 150 148 130 152 100 152 C 70 152 50 148 30 140 Z" fill="#111111"/>
+  <!-- mamá text -->
+  <text x="100" y="78" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="36" fill="white" text-anchor="middle" letter-spacing="-1">mamá</text>
+  <!-- pato text -->
+  <text x="100" y="122" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="48" fill="white" text-anchor="middle" letter-spacing="-1">pato</text>
+</svg>

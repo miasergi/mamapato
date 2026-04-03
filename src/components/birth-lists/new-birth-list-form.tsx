@@ -10,51 +10,56 @@ import { generatePublicSlug } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { CustomerPicker } from '@/components/customers/customer-picker'
+import type { Customer } from '@/types/database'
 
 const schema = z.object({
   baby_name:       z.string().min(1, 'El nombre del bebé es obligatorio'),
   parents_display: z.string().min(1, 'El nombre de los papás es obligatorio'),
   birth_month:     z.string().optional(),
-  parent_a_phone:  z.string().optional(),
-  parent_a_instagram: z.string().optional(),
-  notes: z.string().optional(),
+  notes:           z.string().optional(),
 })
 
 type FormValues = z.infer<typeof schema>
 
 export function NewBirthListForm() {
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState<string | null>(null)
+  const [loading, setLoading]         = useState(false)
+  const [error, setError]             = useState<string | null>(null)
+  const [parentA, setParentA]         = useState<Customer | null>(null)
+  const [parentAId, setParentAId]     = useState<string | null>(null)
+  const [parentB, setParentB]         = useState<Customer | null>(null)
+  const [parentBId, setParentBId]     = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { notes: '' },
   })
+
+  // Auto-fill parents_display when both parents are selected
+  function handleParentAChange(id: string | null, customer: Customer | null) {
+    setParentAId(id)
+    setParentA(customer)
+    autoFillDisplay(customer, parentB)
+  }
+  function handleParentBChange(id: string | null, customer: Customer | null) {
+    setParentBId(id)
+    setParentB(customer)
+    autoFillDisplay(parentA, customer)
+  }
+  function autoFillDisplay(a: Customer | null, b: Customer | null) {
+    const nameA = a?.full_name?.split(' ')[0] ?? ''
+    const nameB = b?.full_name?.split(' ')[0] ?? ''
+    if (nameA && nameB) setValue('parents_display', `${nameA} y ${nameB}`)
+    else if (nameA)     setValue('parents_display', nameA)
+  }
 
   async function onSubmit(values: FormValues) {
     setLoading(true)
     setError(null)
 
     try {
-      // 1. Create parent customer (parent A)
-      let parent_a_id: string | null = null
-      if (values.parents_display) {
-        const { data: customer, error: custErr } = await supabase
-          .from('customers')
-          .insert({
-            full_name: values.parents_display,
-            phone:     values.parent_a_phone    || null,
-            instagram: values.parent_a_instagram || null,
-          })
-          .select('id')
-          .single()
-        if (custErr) throw custErr
-        parent_a_id = customer.id
-      }
-
-      // 2. Create birth list
       const slug = generatePublicSlug(values.baby_name)
       const { data: list, error: listErr } = await supabase
         .from('birth_lists')
@@ -62,7 +67,8 @@ export function NewBirthListForm() {
           baby_name:       values.baby_name,
           parents_display: values.parents_display,
           birth_month:     values.birth_month || null,
-          parent_a_id,
+          parent_a_id:     parentAId,
+          parent_b_id:     parentBId,
           public_slug:     slug,
           status:          'draft',
           notes:           values.notes || null,
@@ -82,6 +88,22 @@ export function NewBirthListForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl border p-6 space-y-5">
+      {/* Personas section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-2 border-b">
+        <CustomerPicker
+          value={parentAId}
+          onChange={handleParentAChange}
+          label="Mamá / Papá (principal) *"
+          placeholder="Buscar o crear cliente…"
+        />
+        <CustomerPicker
+          value={parentBId}
+          onChange={handleParentBChange}
+          label="Mamá / Papá (segundo)"
+          placeholder="Buscar o crear cliente…"
+        />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* Baby name */}
         <div className="space-y-1.5">
@@ -92,9 +114,9 @@ export function NewBirthListForm() {
           )}
         </div>
 
-        {/* Parents */}
+        {/* Parents display name */}
         <div className="space-y-1.5">
-          <Label htmlFor="parents_display">Papás *</Label>
+          <Label htmlFor="parents_display">Nombre visible en la lista *</Label>
           <Input id="parents_display" placeholder="Ej. Laura y Sergio" {...register('parents_display')} />
           {errors.parents_display && (
             <p className="text-xs text-destructive">{errors.parents_display.message}</p>
@@ -105,18 +127,6 @@ export function NewBirthListForm() {
         <div className="space-y-1.5">
           <Label htmlFor="birth_month">Mes de nacimiento</Label>
           <Input id="birth_month" placeholder="Ej. Abril 2026" {...register('birth_month')} />
-        </div>
-
-        {/* Phone */}
-        <div className="space-y-1.5">
-          <Label htmlFor="parent_a_phone">Teléfono de contacto</Label>
-          <Input id="parent_a_phone" type="tel" placeholder="+34 600 000 000" {...register('parent_a_phone')} />
-        </div>
-
-        {/* Instagram */}
-        <div className="space-y-1.5">
-          <Label htmlFor="parent_a_instagram">Instagram</Label>
-          <Input id="parent_a_instagram" placeholder="@mamapato" {...register('parent_a_instagram')} />
         </div>
       </div>
 

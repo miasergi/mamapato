@@ -2,8 +2,13 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import type { GiftVoucher } from '@/types/database'
 import { VoucherDetail } from '@/components/vouchers/voucher-detail'
+import { DEMO_GIFT_VOUCHERS } from '@/lib/demo-data'
 
 interface Props { params: Promise<{ id: string }> }
+
+export function generateStaticParams() {
+  return DEMO_GIFT_VOUCHERS.map((v) => ({ id: v.id }))
+}
 
 export default async function VoucherDetailPage({ params }: Props) {
   const { id } = await params

@@ -2,8 +2,15 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import type { BirthList } from '@/types/database'
 import { PublicListView } from '@/components/public/public-list-view'
+import { DEMO_BIRTH_LISTS } from '@/lib/demo-data'
 
 interface Props { params: Promise<{ slug: string }> }
+
+export function generateStaticParams() {
+  return DEMO_BIRTH_LISTS
+    .filter((l) => l.status === 'active')
+    .map((l) => ({ slug: l.public_slug }))
+}
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params

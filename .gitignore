@@ -5,7 +5,7 @@ node_modules/
 
 # Build outputs
 .next/
-out/
+# out/ is committed — it contains the ready-to-deploy static site
 dist/
 build/
 

@@ -4,8 +4,13 @@ import { BirthListHeader } from '@/components/birth-lists/birth-list-header'
 import { BirthListItemsEditor } from '@/components/birth-lists/birth-list-items-editor'
 import { BirthListStats } from '@/components/birth-lists/birth-list-stats'
 import type { BirthList } from '@/types/database'
+import { DEMO_BIRTH_LISTS } from '@/lib/demo-data'
 
 interface Props { params: Promise<{ id: string }> }
+
+export function generateStaticParams() {
+  return DEMO_BIRTH_LISTS.map((l) => ({ id: l.id }))
+}
 
 export default async function BirthListDetailPage({ params }: Props) {
   const { id } = await params
@@ -28,7 +33,7 @@ export default async function BirthListDetailPage({ params }: Props) {
 
   if (!list) notFound()
 
-  const birthList = list as BirthList
+  const birthList = list as unknown as BirthList
 
   return (
     <div className="space-y-6 max-w-5xl">

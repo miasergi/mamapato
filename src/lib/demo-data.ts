@@ -80,6 +80,27 @@ export const DEMO_GIFT_VOUCHERS = [
 ]
 
 // -- Stock sync logs ----------------------------------------------------------
+export const DEMO_SUPPLIERS = [
+  { id: 's1', name: 'Bugaboo España',    contact: 'Distribuidor oficial', phone: '912345678', email: 'ventas@bugaboo.es', notes: null,                     created_at: d(200) },
+  { id: 's2', name: 'Maxi-Cosi',         contact: 'Dorel Juvenile ES',    phone: '913456789', email: 'b2b@maxicosi.es',  notes: null,                     created_at: d(180) },
+  { id: 's3', name: 'Stokke',            contact: null,                   phone: null,        email: 'b2b@stokke.com',   notes: 'Pedido mínimo 500 €',    created_at: d(150) },
+  { id: 's4', name: 'BabyBjörn España',  contact: 'Rep. comercial',       phone: '914567890', email: null,               notes: null,                     created_at: d(120) },
+  { id: 's5', name: 'Jané S.A.',         contact: 'Almería',              phone: '950111222', email: 'comercial@jane.es', notes: 'Proveedor local',        created_at: d(90)  },
+]
+
+export const DEMO_CATEGORIES = [
+  { id: 'cat1', name: 'Movilidad',      slug: 'movilidad',       parent_id: null,   created_at: d(200) },
+  { id: 'cat2', name: 'Seguridad vial', slug: 'seguridad-vial',  parent_id: null,   created_at: d(200) },
+  { id: 'cat3', name: 'Alimentación',   slug: 'alimentacion',    parent_id: null,   created_at: d(200) },
+  { id: 'cat4', name: 'Vigilancia',     slug: 'vigilancia',      parent_id: null,   created_at: d(200) },
+  { id: 'cat5', name: 'Porteo',         slug: 'porteo',          parent_id: null,   created_at: d(200) },
+  { id: 'cat6', name: 'Descanso',       slug: 'descanso',        parent_id: null,   created_at: d(200) },
+  { id: 'cat7', name: 'Baño',           slug: 'bano',            parent_id: null,   created_at: d(200) },
+  { id: 'cat8', name: 'Lactancia',      slug: 'lactancia',       parent_id: null,   created_at: d(200) },
+  { id: 'cat9', name: 'Cochecitos',     slug: 'cochecitos',      parent_id: 'cat1', created_at: d(190) },
+  { id: 'cat10', name: 'Sillas de coche', slug: 'sillas-coche',  parent_id: 'cat2', created_at: d(190) },
+]
+
 export const DEMO_STOCK_SYNC_LOGS = [
   { id: 'sl1', source: 'ontario_csv', status: 'success', rows_processed: 142, rows_updated: 142, rows_created: 3, rows_discrepant: 5,  error_detail: null,                     triggered_by: 'admin@mamapato.es', created_at: d(1) },
   { id: 'sl2', source: 'ontario_csv', status: 'success', rows_processed: 138, rows_updated: 138, rows_created: 0, rows_discrepant: 2,  error_detail: null,                     triggered_by: 'admin@mamapato.es', created_at: d(3) },
@@ -114,7 +135,7 @@ export const DEMO_TABLES: Record<string, unknown[]> = {
   stock_sync_logs:        DEMO_STOCK_SYNC_LOGS,
   v_birth_list_summary:   DEMO_V_BIRTH_LIST_SUMMARY,
   v_product_active_lists: [],
-  suppliers:              [],
-  categories:             [],
+  suppliers:              DEMO_SUPPLIERS,
+  categories:             DEMO_CATEGORIES,
   customers:              DEMO_CUSTOMERS,
 }

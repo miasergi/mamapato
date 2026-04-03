@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { ShoppingBag, ArrowLeft, Phone, MapPin, Clock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import type { Product } from '@/types/database'
+import { StockNotifyForm } from '@/components/public/stock-notify-form'
+import { DEMO_PRODUCTS } from '@/lib/demo-data'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -15,6 +17,10 @@ function slugify(name: string) {
     .normalize('NFD').replace(/\p{Mn}/gu, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
+}
+
+export function generateStaticParams() {
+  return DEMO_PRODUCTS.map((p) => ({ slug: `${slugify(p.name)}-${p.id}` }))
 }
 
 async function getProduct(slug: string): Promise<Product | null> {
@@ -168,6 +174,11 @@ export default async function ProductDetailPage({ params }: Props) {
 
             {/* SKU */}
             <p className="text-xs text-gray-400">Ref. {product.sku}</p>
+
+            {/* Stock notification form for out-of-stock products */}
+            {!inStock && (
+              <StockNotifyForm productName={product.name} productSku={product.sku} />
+            )}
 
             {/* CTA buttons */}
             <div className="flex flex-col gap-3 pt-2">
