@@ -25,7 +25,7 @@ function renderPublicHeader(root, active) {
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <a href="${root}tienda/index.html" class="flex items-center gap-3">
-        <img src="${root}logo.svg" alt="Mamá Pato" class="h-10 w-auto">
+        <img src="${root}logo.png" alt="Mamá Pato" class="h-10 w-auto">
       </a>
       <nav class="hidden md:flex items-center gap-6">${links}</nav>
       <div class="flex items-center gap-3">
@@ -53,7 +53,7 @@ function renderPublicFooter(root) {
   <div class="max-w-6xl mx-auto px-4 py-12">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
       <div class="md:col-span-2">
-        <img src="${root}logo.svg" alt="Mamá Pato" class="h-10 w-auto invert mb-3">
+        <img src="${root}logo.png" alt="Mamá Pato" class="h-10 w-auto mb-3 rounded-lg">
         <p class="text-sm leading-relaxed">Tu tienda de confianza para todo lo que necesita tu bebé. Benicarló, Castellón.</p>
         <p class="text-sm mt-2 flex items-center gap-2">${ICON.phone(14)} <a href="tel:+34964000000" class="hover:text-white">964 000 000</a></p>
         <p class="text-sm flex items-center gap-2">${ICON.mail(14)} <a href="mailto:hola@mamapato.es" class="hover:text-white">hola@mamapato.es</a></p>
@@ -119,7 +119,7 @@ function renderDashboard(root, active) {
   <aside class="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
     <div class="p-5 border-b border-gray-100">
       <a href="${root}tienda/index.html" target="_blank">
-        <img src="${root}logo.svg" alt="Mamá Pato" class="h-10 w-auto">
+        <img src="${root}logo.png" alt="Mamá Pato" class="h-10 w-auto">
       </a>
       <span class="inline-block mt-2 text-xs bg-duck-100 text-duck-700 px-2 py-0.5 rounded-full font-semibold">Panel admin</span>
 

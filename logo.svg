@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 170" width="220" height="170">
-  <!-- Organic rounded blob matching brand stamp -->
-  <path d="M 28 148 C 6 142 2 122 2 104 C 2 72 6 50 22 34 C 38 16 66 6 110 6 C 154 6 182 16 198 34 C 214 50 218 72 218 104 C 218 122 214 142 192 148 C 172 157 144 162 110 162 C 76 162 48 157 28 148 Z" fill="#111111"/>
-  <!-- mamá text -->
-  <text x="110" y="82" font-family="'Arial Black','Impact','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="40" fill="white" text-anchor="middle" letter-spacing="-0.5">mamá</text>
-  <!-- pato text -->
-  <text x="110" y="132" font-family="'Arial Black','Impact','Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="52" fill="white" text-anchor="middle" letter-spacing="1">PATO</text>
-</svg>
