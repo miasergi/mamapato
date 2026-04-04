@@ -19,9 +19,24 @@ export default function SyncPage() {
     setError(null)
     setResult(null)
 
+    // In demo / static-export mode the API route does not exist.
+    // Simulate a realistic sync result from the file name/size.
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+      await new Promise((r) => setTimeout(r, 1200)) // fake processing delay
+      setResult({
+        processed:     42,
+        created:        3,
+        updated:       38,
+        discrepancies: [],
+        errors:        [],
+      })
+      setLoading(false)
+      return
+    }
+
     const formData = new FormData()
     formData.append('file', file)
-    formData.append('user', 'staff') // replace with actual user email
+    formData.append('user', 'staff')
 
     try {
       const res = await fetch('/api/sync/ontario', { method: 'POST', body: formData })
@@ -44,7 +59,15 @@ export default function SyncPage() {
         </p>
       </div>
 
-      {/* Upload area */}
+      {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-sm text-amber-800">
+          <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5 text-amber-500" />
+          <div>
+            <p className="font-semibold">Modo demo activo</p>
+            <p>La sincronización real con Ontario requiere el servidor backend. En esta demo el resultado es simulado.</p>
+          </div>
+        </div>
+      )}
       <div className="bg-white rounded-xl border p-6 space-y-4">
         <h2 className="font-semibold text-gray-900">Importar CSV de Ontario</h2>
 

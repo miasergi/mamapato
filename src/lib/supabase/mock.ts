@@ -7,6 +7,30 @@ import { DEMO_TABLES } from '@/lib/demo-data'
 
 type Row = Record<string, unknown>
 
+/**
+ * Returned by insert / update / upsert / delete so callers can chain
+ * `.select()` and/or `.single()` / `.maybeSingle()` / `.eq()` without errors.
+ * In demo mode every mutation is a no-op: the inserted/updated value is echoed
+ * back with a generated id when one is not already present.
+ */
+function createMutationBuilder(data: unknown) {
+  const localData = Array.isArray(data) ? data[0] : data
+  const echo: Row = localData
+    ? { id: `demo-${Date.now()}`, ...(localData as Row) }
+    : { id: `demo-${Date.now()}` }
+
+  const builder = {
+    eq(_col: string, _val: unknown)  { return builder },
+    select(_cols?: string)           { return builder },
+    single()      { return Promise.resolve({ data: echo,  error: null }) },
+    maybeSingle() { return Promise.resolve({ data: echo,  error: null }) },
+    then<T>(resolve: (v: { data: Row | null; error: null }) => T) {
+      return Promise.resolve({ data: echo, error: null }).then(resolve)
+    },
+  }
+  return builder
+}
+
 function createQueryBuilder(tableName: string) {
   let rows: Row[] = [...((DEMO_TABLES[tableName] ?? []) as Row[])]
   let wantCount = false
@@ -74,10 +98,10 @@ function createQueryBuilder(tableName: string) {
     },
 
     // ── mutations (no-ops in demo) ─────────────────────────────────────────────
-    insert(values: unknown)        { return Promise.resolve({ data: values, error: null }) },
-    update(values: unknown)        { return Promise.resolve({ data: values, error: null }) },
-    upsert(values: unknown)        { return Promise.resolve({ data: values, error: null }) },
-    delete()                       { return Promise.resolve({ data: null,   error: null }) },
+    insert(values: unknown)        { return createMutationBuilder(values) },
+    update(values: unknown)        { return createMutationBuilder(values) },
+    upsert(values: unknown)        { return createMutationBuilder(values) },
+    delete()                       { return createMutationBuilder(null) },
 
     // ── thenable – used when the query builder is `await`-ed directly ─────────
     then<T>(resolve: (v: { data: Row[] | null; error: null; count?: number }) => T) {
