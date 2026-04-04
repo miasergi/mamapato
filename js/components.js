@@ -92,37 +92,47 @@ function renderPublicFooter(root) {
 function renderDashboard(root, active) {
   root = root || '';
   const email = getCurrentUserEmail() || 'admin@mamapato.es';
+  const lowStock = typeof hasLowStock === 'function' && hasLowStock();
 
   const items = [
-    { key:'home',        icon: ICON.chart(20),    label:'Inicio',             href: root + 'dashboard/index.html' },
-    { key:'lists',       icon: ICON.baby(20),     label:'Listas nacimiento',  href: root + 'dashboard/birth-lists/index.html' },
-    { key:'customers',   icon: ICON.users(20),    label:'Clientes',           href: root + 'dashboard/customers/index.html' },
-    { key:'vouchers',    icon: ICON.gift(20),     label:'Vales regalo',       href: root + 'dashboard/vouchers/index.html' },
-    { key:'products',    icon: ICON.box(20),      label:'Productos',          href: root + 'dashboard/products/index.html' },
-    { key:'sync',        icon: ICON.refresh(20),  label:'Importar Ontario',   href: root + 'dashboard/sync/index.html' },
-    { key:'settings',    icon: ICON.settings(20), label:'Configuración',      href: root + 'dashboard/settings/index.html' },
+    { key:'home',      icon: ICON.chart(20),    label:'Inicio',            href: root + 'dashboard/index.html' },
+    { key:'lists',     icon: ICON.baby(20),     label:'Listas nacimiento', href: root + 'dashboard/birth-lists/index.html' },
+    { key:'customers', icon: ICON.users(20),    label:'Clientes',          href: root + 'dashboard/customers/index.html' },
+    { key:'vouchers',  icon: ICON.gift(20),     label:'Vales regalo',      href: root + 'dashboard/vouchers/index.html' },
+    { key:'products',  icon: ICON.box(20),      label:'Productos',         href: root + 'dashboard/products/index.html', badge: lowStock },
+    { key:'sync',      icon: ICON.refresh(20),  label:'Importar Ontario',  href: root + 'dashboard/sync/index.html' },
+    { key:'settings',  icon: ICON.settings(20), label:'Configuración',     href: root + 'dashboard/settings/index.html' },
   ];
 
   const navLinks = items.map(i =>
     `<a href="${i.href}" class="sidebar-link ${active === i.key ? 'active' : ''}">
-       <span class="flex-shrink-0">${i.icon}</span>${i.label}
+       <span class="flex-shrink-0">${i.icon}</span>
+       <span class="flex-1">${i.label}</span>
+       ${i.badge ? '<span class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span>' : ''}
      </a>`
   ).join('');
 
   const el = document.getElementById('dashboard-layout');
   if (!el) return;
 
-  // The sidebar/header wrapper; page content goes in #page-content
   el.innerHTML = `
+<!-- Mobile sidebar overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 z-20 bg-black/40 hidden md:hidden" onclick="closeSidebar()"></div>
+
 <div class="flex h-screen overflow-hidden bg-gray-50">
   <!-- Sidebar -->
-  <aside class="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
-    <div class="p-5 border-b border-gray-100">
+  <aside id="main-sidebar" class="
+    fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transform -translate-x-full transition-transform duration-200
+    md:relative md:translate-x-0 md:flex-shrink-0
+  ">
+    <div class="p-5 border-b border-gray-100 flex items-center justify-between">
       <a href="${root}tienda/index.html" target="_blank">
         <img src="${root}logo.png" alt="Mamá Pato" class="h-10 w-auto">
       </a>
-      <span class="inline-block mt-2 text-xs bg-duck-100 text-duck-700 px-2 py-0.5 rounded-full font-semibold">Panel admin</span>
-
+      <button class="md:hidden text-gray-400 hover:text-gray-600" onclick="closeSidebar()">${ICON.x(20)}</button>
+    </div>
+    <div class="px-5 pb-2 pt-1">
+      <span class="inline-block text-xs bg-duck-100 text-duck-700 px-2 py-0.5 rounded-full font-semibold">Panel admin</span>
     </div>
     <nav class="flex-1 overflow-y-auto p-3 space-y-0.5">
       ${navLinks}
@@ -135,19 +145,96 @@ function renderDashboard(root, active) {
   </aside>
 
   <!-- Main -->
-  <div class="flex-1 flex flex-col overflow-hidden">
+  <div class="flex-1 flex flex-col overflow-hidden min-w-0">
     <!-- Top bar -->
-    <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
-      <h1 id="page-title" class="text-lg font-semibold text-gray-800"></h1>
-      <div class="flex items-center gap-4">
-        <span class="text-sm text-gray-500">${email}</span>
-        <button onclick="logout('${root}')" class="text-sm text-red-500 hover:text-red-700 font-medium transition-colors">
-          Cerrar sesión →
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 flex-shrink-0">
+      <!-- Hamburger (mobile only) -->
+      <button class="md:hidden text-gray-500 hover:text-gray-800 flex-shrink-0" onclick="openSidebar()">
+        ${ICON.menu(22)}
+      </button>
+      <!-- Global search -->
+      <div class="relative flex-1 max-w-sm">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">${ICON.search(16)}</span>
+        <input id="global-search" type="text" placeholder="Buscar clientes, listas, bonos…"
+          class="w-full pl-9 pr-4 py-1.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-duck-400 focus:bg-white"
+          oninput="renderGlobalSearchDropdown(this.value,'${root}')" autocomplete="off">
+        <div id="global-search-dropdown" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 hidden max-h-72 overflow-y-auto text-sm"></div>
+      </div>
+      <div class="flex items-center gap-3 ml-auto flex-shrink-0">
+        <span class="hidden sm:block text-sm text-gray-500">${email}</span>
+        <button onclick="logout('${root}')" class="text-sm text-red-500 hover:text-red-700 font-medium transition-colors whitespace-nowrap">
+          Salir →
         </button>
       </div>
     </header>
     <!-- Page content -->
-    <main class="flex-1 overflow-y-auto p-6" id="page-content"></main>
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6" id="page-content"></main>
   </div>
 </div>`;
+
+  // Close search dropdown on outside click
+  document.addEventListener('click', function(e) {
+    const wrap = document.getElementById('global-search');
+    const dd   = document.getElementById('global-search-dropdown');
+    if (wrap && dd && !wrap.contains(e.target) && !dd.contains(e.target)) {
+      dd.classList.add('hidden');
+    }
+  });
+}
+
+function openSidebar() {
+  const s = document.getElementById('main-sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  if (s) s.classList.remove('-translate-x-full');
+  if (o) o.classList.remove('hidden');
+}
+function closeSidebar() {
+  const s = document.getElementById('main-sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  if (s) s.classList.add('-translate-x-full');
+  if (o) o.classList.add('hidden');
+}
+
+function renderGlobalSearchDropdown(q, root) {
+  const dd = document.getElementById('global-search-dropdown');
+  if (!dd) return;
+  if (!q || q.length < 2) { dd.classList.add('hidden'); return; }
+  const r = globalSearch(q);
+  const total = r.customers.length + r.lists.length + r.vouchers.length + r.products.length;
+  if (total === 0) { dd.innerHTML = '<p class="px-4 py-3 text-gray-400">Sin resultados</p>'; dd.classList.remove('hidden'); return; }
+
+  let html = '';
+  if (r.customers.length) {
+    html += '<div class="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b">Clientes</div>';
+    html += r.customers.slice(0,4).map(c =>
+      `<a href="${root}dashboard/customers/${c.id}/index.html" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
+        <span class="text-gray-400">${ICON.user(14)}</span><span>${c.full_name}</span>
+        ${c.phone ? `<span class="ml-auto text-gray-400 text-xs">${c.phone}</span>` : ''}
+      </a>`).join('');
+  }
+  if (r.lists.length) {
+    html += '<div class="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-t mt-1">Listas</div>';
+    html += r.lists.slice(0,3).map(l =>
+      `<a href="${root}dashboard/birth-lists/${l.id}/index.html" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
+        <span class="text-gray-400">${ICON.baby(14)}</span><span>${l.baby_name} ${l.surname}</span>
+      </a>`).join('');
+  }
+  if (r.vouchers.length) {
+    html += '<div class="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-t mt-1">Bonos</div>';
+    html += r.vouchers.slice(0,3).map(v =>
+      `<a href="${root}dashboard/vouchers/${v.id}/index.html" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
+        <span class="text-gray-400">${ICON.gift(14)}</span><span>${v.code}</span>
+        <span class="ml-auto text-gray-400 text-xs">${formatPrice(v.remaining)}</span>
+      </a>`).join('');
+  }
+  if (r.products.length) {
+    html += '<div class="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-t mt-1">Productos</div>';
+    html += r.products.slice(0,3).map(p =>
+      `<a href="${root}dashboard/products/index.html" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50">
+        <span class="text-gray-400">${ICON.box(14)}</span><span>${p.name}</span>
+        <span class="ml-auto text-gray-400 text-xs">${formatPrice(p.price)}</span>
+      </a>`).join('');
+  }
+  dd.innerHTML = html;
+  dd.classList.remove('hidden');
 }

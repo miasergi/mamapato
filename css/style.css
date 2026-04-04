@@ -89,3 +89,26 @@ body { font-family: 'Inter', sans-serif; }
 /* Card hover */
 .card-hover { transition: box-shadow .2s, transform .2s; }
 .card-hover:hover { box-shadow: 0 8px 24px rgba(0,0,0,.1); transform: translateY(-2px); }
+
+/* Form utilities */
+.label {
+  display: block;
+  font-size: .875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: .25rem;
+}
+.input-field {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: .5rem;
+  padding: .625rem 1rem;
+  font-size: .875rem;
+  transition: box-shadow .15s, border-color .15s;
+  outline: none;
+  background: white;
+}
+.input-field:focus {
+  border-color: var(--duck-400);
+  box-shadow: 0 0 0 3px rgba(37,150,190,.15);
+}
