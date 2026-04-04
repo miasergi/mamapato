@@ -179,7 +179,10 @@ function renderBirthListDetail(root, listId) {
         <div class="bg-white rounded-2xl border border-gray-100 p-5">
           <h3 class="font-semibold text-gray-900 mb-3">Enlace público</h3>
           <div class="bg-gray-50 rounded-lg p-3 text-xs text-gray-600 font-mono break-all mb-3">${list.public_slug}</div>
-          <a href="${publicUrl}" target="_blank" class="btn-duck w-full justify-center text-sm">Ver lista pública →</a>
+          ${list.status === 'active'
+            ? `<a href="${publicUrl}" target="_blank" class="btn-duck w-full justify-center text-sm">Ver lista pública →</a>`
+            : `<p class="text-xs text-gray-400 text-center">${list.status === 'draft' ? 'Lista en borrador — no publicada' : 'Lista cerrada'}</p>`
+          }
         </div>
 
         <!-- QR Code -->
@@ -230,7 +233,7 @@ function renderBirthListNew(root) {
       <div class="bg-white rounded-2xl border border-gray-100 p-8">
         <h2 class="text-xl font-bold text-gray-900 mb-6">Datos de la lista</h2>
         <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 text-sm text-yellow-800">
-          ⚠️ Modo demo: el formulario no guarda datos reales.
+          ${ICON.warning(16)} Modo demo: el formulario no guarda datos reales.
         </div>
         <form onsubmit="handleNewList(event, '${root}')" class="space-y-5">
           <div class="grid grid-cols-2 gap-4">

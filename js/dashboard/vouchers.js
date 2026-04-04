@@ -202,7 +202,7 @@ function renderVoucherDetail(root, voucherId) {
           <h3 class="font-semibold text-gray-900 mb-3">Cliente asignado</h3>
           ${customer
             ? `<a href="${root}dashboard/customers/${customer.id}/index.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-duck-50 transition-colors group">
-                 <div class="w-9 h-9 bg-duck-100 rounded-full flex items-center justify-center text-lg">👤</div>
+                 <div class="w-9 h-9 bg-duck-100 rounded-full flex items-center justify-center text-duck-600">${ICON.user(20)}</div>
                  <div>
                    <div class="text-sm font-semibold group-hover:text-duck-700">${customer.full_name}</div>
                    <div class="text-xs text-gray-400">${customer.phone}</div>
@@ -230,7 +230,7 @@ function renderVoucherNew(root) {
       <div class="bg-white rounded-2xl border border-gray-100 p-8">
         <h2 class="text-xl font-bold text-gray-900 mb-6">Nuevo vale regalo</h2>
         <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 text-sm text-yellow-800">
-          ⚠️ Modo demo: no se generan vales reales.
+          ${ICON.warning(16)} Modo demo: no se generan vales reales.
         </div>
         <form onsubmit="handleNewVoucher(event,'${root}')" class="space-y-5">
           <div>

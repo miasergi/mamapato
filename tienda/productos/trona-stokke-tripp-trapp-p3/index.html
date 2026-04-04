@@ -26,7 +26,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div class="grid grid-cols-1 md:grid-cols-2">
         <!-- Image -->
-        <div class="bg-duck-50 flex items-center justify-center h-72 md:h-auto text-9xl p-12">🪑</div>
+        <div id="product-hero-icon" class="bg-duck-50 flex items-center justify-center h-72 md:h-auto text-duck-300 p-12"></div>
         <!-- Info -->
         <div class="p-8 flex flex-col justify-between">
           <div>
@@ -75,6 +75,7 @@
   <script>
     renderPublicHeader('../../../', 'productos');
     renderPublicFooter('../../../');
+    document.getElementById('product-hero-icon').innerHTML = ICON.utensils(128);
     const related = DEMO_PRODUCTS.filter(p => p.id !== 'p3').slice(0,4);
     const rg = document.getElementById('related-grid');
     related.forEach(p => {

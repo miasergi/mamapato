@@ -159,7 +159,7 @@ function simulateSync() {
   const status = document.getElementById('sync-status');
   progress.classList.remove('hidden');
 
-  const steps = ['Conectando con Ontario…','Leyendo catálogo…','Procesando 8 productos…','Actualizando stock…','Sincronización completada ✅'];
+  const steps = ['Conectando con Ontario…','Leyendo catálogo…','Procesando 8 productos…','Actualizando stock…','Sincronización completada — OK'];
   let i = 0;
   const interval = setInterval(() => {
     if (i >= steps.length) { clearInterval(interval); return; }

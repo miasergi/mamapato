@@ -186,7 +186,7 @@ function renderCustomerNew(root) {
       <div class="bg-white rounded-2xl border border-gray-100 p-8">
         <h2 class="text-xl font-bold text-gray-900 mb-6">Datos del cliente</h2>
         <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 text-sm text-yellow-800">
-          ⚠️ Modo demo: no se guardan datos reales.
+          ${ICON.warning(16)} Modo demo: no se guardan datos reales.
         </div>
         <form onsubmit="handleNewCustomer(event,'${root}')" class="space-y-5">
           <div>
