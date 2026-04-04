@@ -57,7 +57,7 @@ function renderProductsDashboard(root) {
     <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5 flex items-start gap-3">
       <span class="text-amber-500 flex-shrink-0 mt-0.5">${ICON.warning(18)}</span>
       <div class="flex-1">
-        <p class="text-sm font-semibold text-amber-800 mb-1">⚠ Stock bajo en ${lowStock.length} producto${lowStock.length>1?'s':''}</p>
+        <p class="text-sm font-semibold text-amber-800 mb-1">Stock bajo en ${lowStock.length} producto${lowStock.length>1?'s':''}</p>
         <div class="flex flex-wrap gap-2">
           ${lowStock.map(p=>`<span class="text-xs bg-white border border-amber-200 rounded px-2 py-0.5 text-amber-700">${p.name} — ${p.stock_web+p.stock_store} uds.</span>`).join('')}
         </div>

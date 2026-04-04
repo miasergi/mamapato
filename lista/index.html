@@ -73,16 +73,20 @@
     const active = DEMO_BIRTH_LISTS.filter(l => l.status === 'active');
     const g = document.getElementById('lists-grid');
     active.forEach(l => {
-      const total = l.product_ids.length;
+      const total = l.items.length;
       const reservations = getListReservations(l.id);
       const gifted = reservations.length;
-      const pct = Math.round(gifted/total*100);
+      const pct = Math.round(gifted / (total || 1) * 100);
+      const mother = l.mother_id ? getCustomer(l.mother_id) : null;
+      const father = l.father_id ? getCustomer(l.father_id) : null;
+      const parentsNames = [mother, father].filter(Boolean).map(c => c.full_name.split(' ')[0]);
+      const parentsDisplay = parentsNames.join(' y ');
       g.innerHTML += `
-        <a href="${l.public_slug}/index.html" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 card-hover block group">
+        <a href="${l.slug}/index.html" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 card-hover block group">
           <div class="text-4xl mb-3 text-duck-500">${ICON.baby(40)}</div>
-          <h3 class="text-lg font-bold text-gray-900 group-hover:text-duck-700 mb-1">${l.baby_name}</h3>
-          <p class="text-sm text-gray-500 mb-1">${l.parents_display}</p>
-          <p class="text-xs text-duck-600 font-medium mb-4">${ICON.calendar(13)} ${l.birth_month}</p>
+          <h3 class="text-lg font-bold text-gray-900 group-hover:text-duck-700 mb-1">${l.baby_name} ${l.surname}</h3>
+          ${parentsDisplay ? `<p class="text-sm text-gray-500 mb-1">${parentsDisplay}</p>` : ''}
+          <p class="text-xs text-duck-600 font-medium mb-4 flex items-center gap-1">${ICON.calendar(13)} Parto: ${formatDate(l.birth_date)}</p>
           <div class="bg-gray-100 rounded-full h-2 mb-1">
             <div class="bg-duck-500 h-2 rounded-full" style="width:${pct}%"></div>
           </div>
