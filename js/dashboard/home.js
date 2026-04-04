@@ -57,6 +57,31 @@ function renderDashboardHome(root) {
       <a href="${root}dashboard/products/index.html" class="text-xs text-amber-700 font-semibold hover:underline whitespace-nowrap">Ver →</a>
     </div>` : ''}
 
+    <!-- Upcoming births panel -->
+    ${(() => {
+      const upcoming = getUpcomingBirths(30);
+      if (!upcoming.length) return '';
+      return `<div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-red-500">${ICON.baby(18)}</span>
+          <p class="text-sm font-semibold text-red-800">Partos en menos de 30 días (${upcoming.length})</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          ${upcoming.map(l => {
+            const diff = Math.floor((new Date(l.birth_date) - new Date()) / 86400000);
+            const rsvs = getListReservations(l.id);
+            const pct  = l.items.length ? Math.round(rsvs.length / l.items.length * 100) : 0;
+            return `<a href="${root}dashboard/birth-lists/${l.id}/index.html"
+              class="inline-flex items-center gap-2 bg-white border border-red-200 rounded-lg px-3 py-2 hover:bg-red-50 transition-colors">
+              <span class="text-xs font-bold text-red-700 whitespace-nowrap">${diff}d</span>
+              <span class="text-xs font-semibold text-gray-700">${l.baby_name} ${l.surname}</span>
+              <span class="text-xs text-gray-400">${pct}% completado</span>
+            </a>`;
+          }).join('')}
+        </div>
+      </div>`;
+    })()}
+
     <!-- Listas + Actividad -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       <!-- Listas recientes -->

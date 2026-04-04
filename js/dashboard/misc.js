@@ -73,6 +73,7 @@ function renderProductsDashboard(root) {
       <select id="prod-status" class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-duck-400">
         <option value="">Todos los estados</option>
         <option value="active">Activos</option>
+        <option value="apartado">Apartado (reserva tienda)</option>
         <option value="inactive">Inactivos</option>
         <option value="pending_order">Pedido pendiente</option>
       </select>
@@ -107,62 +108,168 @@ function renderProductsDashboard(root) {
 
 function renderSyncPage(root) {
   root = root || '';
+  let syncMode = 'csv';
 
   const pc = document.getElementById('page-content');
-  pc.innerHTML = `
-    <div class="max-w-2xl">
-      <div class="bg-white rounded-2xl border border-gray-100 p-8 mb-6">
-        <div class="text-duck-500 mb-4">${ICON.refresh(40)}</div>
-        <h2 class="text-xl font-bold text-gray-900 mb-2">Sincronización con Ontario</h2>
-        <p class="text-gray-500 text-sm mb-6 leading-relaxed">
-          Importa el catálogo de productos desde Ontario (ERP).
-          En producción, esto procesaría un CSV o conectaría con la API de Ontario.
-        </p>
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-sm text-amber-800 flex items-start gap-2">
-          ${ICON.warning(15)} <span>Modo demo — la sincronización es simulada y no modifica datos reales.</span>
-        </div>
-        <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center mb-6 cursor-pointer hover:border-duck-400 hover:bg-duck-50 transition-all">
-          <div class="text-duck-400 mb-3">${ICON.folder(40)}</div>
-          <p class="font-medium text-gray-700 mb-1">Arrastra un CSV de Ontario aquí</p>
-          <p class="text-sm text-gray-400">o</p>
-          <label class="mt-3 inline-block btn-outline-duck cursor-pointer">
-            Seleccionar archivo
-            <input type="file" accept=".csv" class="hidden" id="csv-input" onchange="handleCsvUpload(event)">
-          </label>
-        </div>
-        <div id="sync-progress" class="hidden mb-4">
-          <div class="bg-gray-100 rounded-full h-2 mb-3">
-            <div id="sync-bar" class="bg-duck-500 h-2 rounded-full transition-all" style="width:0%"></div>
+
+  function render() {
+    const modeTab = (key, label) =>
+      `<button onclick="syncSetMode('${key}')" id="sync-tab-${key}"
+        class="px-4 py-2 text-sm font-medium rounded-lg transition-colors ${syncMode===key ? 'bg-duck-600 text-white' : 'text-gray-600 hover:bg-gray-100'}">
+        ${label}
+      </button>`;
+
+    pc.innerHTML = `
+      <div class="max-w-2xl">
+        <div class="bg-white rounded-2xl border border-gray-100 p-8 mb-6">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-duck-500">${ICON.refresh(36)}</span>
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">Sincronización con Ontario ERP</h2>
+              <p class="text-sm text-gray-400">Importa catálogo, precios y stock desde Ontario</p>
+            </div>
           </div>
-          <p id="sync-status" class="text-sm text-gray-600 text-center"></p>
-        </div>
-        <button onclick="simulateSync()" class="btn-duck w-full justify-center">
-          ${ICON.refresh(16)} Simular sincronización demo
-        </button>
-      </div>
-      <div class="bg-white rounded-2xl border border-gray-100 p-6">
-        <h3 class="font-semibold text-gray-900 mb-4">Últimos productos sobre el catálogo demo</h3>
-        <div class="space-y-2">
-          ${DEMO_PRODUCTS.slice(0,5).map(p => `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-              <div class="flex items-center gap-3">
-                <span class="text-duck-500">${ICON[p.iconName] ? ICON[p.iconName](20) : ICON.box(20)}</span>
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-sm text-amber-800 flex items-start gap-2">
+            ${ICON.warning(15)} <span>Modo demo — la sincronización es simulada y no modifica datos reales.</span>
+          </div>
+          <div class="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6">
+            ${modeTab('csv',  'CSV / Exportación')}
+            ${modeTab('odbc', 'ODBC / Base de datos')}
+            ${modeTab('url',  'URL / API Feed')}
+          </div>
+
+          <!-- CSV Mode -->
+          <div id="sync-mode-csv" class="${syncMode==='csv' ? '' : 'hidden'}">
+            <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center mb-5 cursor-pointer hover:border-duck-400 hover:bg-duck-50 transition-all">
+              <div class="text-duck-400 mb-3">${ICON.folder(40)}</div>
+              <p class="font-medium text-gray-700 mb-1">Arrastra un CSV de Ontario aquí</p>
+              <p class="text-sm text-gray-400 mb-3">Formato: SKU, nombre, precio, stock_web, stock_tienda</p>
+              <label class="inline-block btn-outline-duck cursor-pointer">
+                Seleccionar archivo
+                <input type="file" accept=".csv" class="hidden" id="csv-input" onchange="handleCsvUpload(event)">
+              </label>
+            </div>
+            <div id="csv-mapping" class="hidden mb-5">
+              <h4 class="text-sm font-semibold text-gray-700 mb-3">Mapeo de columnas</h4>
+              <div class="overflow-x-auto">
+                <table class="w-full text-xs border border-gray-200 rounded-lg overflow-hidden">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-3 py-2 text-left text-gray-500">Columna CSV</th>
+                      <th class="px-3 py-2 text-left text-gray-500">Campo sistema</th>
+                      <th class="px-3 py-2 text-left text-gray-500">Ejemplo</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mapping-tbody"></tbody>
+                </table>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="simulateSync()" class="btn-duck text-sm">${ICON.refresh(14)} Importar con este mapeo</button>
+                <button onclick="document.getElementById('csv-mapping').classList.add('hidden')" class="btn-outline-duck text-sm">Cancelar</button>
+              </div>
+            </div>
+            <button onclick="simulateSync()" class="btn-duck w-full justify-center">${ICON.refresh(16)} Simular sincronización demo</button>
+          </div>
+
+          <!-- ODBC Mode -->
+          <div id="sync-mode-odbc" class="${syncMode==='odbc' ? '' : 'hidden'}">
+            <p class="text-sm text-gray-500 mb-4">Conecta con la BD de Ontario (SQL Server o MySQL) usando ODBC. Requiere acceso de red y credenciales.</p>
+            <div class="space-y-4">
+              <div>
+                <label class="label">Tipo de base de datos</label>
+                <select class="input-field w-full bg-white">
+                  <option>SQL Server (Ontario estándar)</option>
+                  <option>MySQL / MariaDB</option>
+                  <option>ODBC genérico</option>
+                </select>
+              </div>
+              <div><label class="label">Servidor / Host</label><input type="text" placeholder="192.168.1.100\ONTARIO" class="input-field w-full"></div>
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="label">Base de datos</label><input type="text" placeholder="GestionOntario" class="input-field w-full"></div>
+                <div><label class="label">Puerto</label><input type="text" placeholder="1433" class="input-field w-full"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="label">Usuario</label><input type="text" placeholder="ontario_user" class="input-field w-full"></div>
+                <div><label class="label">Contraseña</label><input type="password" placeholder="••••••" class="input-field w-full"></div>
+              </div>
+              <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs font-mono text-gray-500 break-all">
+                Server=192.168.1.100;Database=GestionOntario;User Id=ontario_user;Password=***;
+              </div>
+              <button onclick="simulateSync()" class="btn-duck w-full justify-center">${ICON.refresh(16)} Probar conexión (demo)</button>
+            </div>
+          </div>
+
+          <!-- URL/API Mode -->
+          <div id="sync-mode-url" class="${syncMode==='url' ? '' : 'hidden'}">
+            <p class="text-sm text-gray-500 mb-4">Configura un endpoint JSON/XML que Ontario exponga o un middleware intermedio.</p>
+            <div class="space-y-4">
+              <div><label class="label">URL del endpoint</label><input type="url" placeholder="https://ontario-server/api/productos" class="input-field w-full"></div>
+              <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <div class="text-sm font-medium text-gray-900">${p.name}</div>
-                  <div class="text-xs text-gray-400">${p.sku} · ${formatPrice(p.price)}</div>
+                  <label class="label">Formato</label>
+                  <select class="input-field w-full bg-white"><option>JSON</option><option>XML</option><option>CSV via HTTP</option></select>
+                </div>
+                <div>
+                  <label class="label">Autenticación</label>
+                  <select class="input-field w-full bg-white"><option>Sin auth</option><option>API Key</option><option>Basic Auth</option><option>Bearer Token</option></select>
                 </div>
               </div>
-              <span class="badge ${statusClass(p.status)}">${statusLabel(p.status)}</span>
-            </div>`).join('')}
+              <div><label class="label">Clave API / Token</label><input type="text" placeholder="sk-xxxxx…" class="input-field w-full"></div>
+              <div>
+                <label class="label">Frecuencia de sincronización</label>
+                <select class="input-field w-full bg-white"><option>Manual</option><option>Diaria</option><option>Cada hora</option></select>
+              </div>
+              <button onclick="simulateSync()" class="btn-duck w-full justify-center">${ICON.refresh(16)} Probar endpoint (demo)</button>
+            </div>
+          </div>
+
+          <div id="sync-progress" class="hidden mt-5">
+            <div class="bg-gray-100 rounded-full h-2 mb-3">
+              <div id="sync-bar" class="bg-duck-500 h-2 rounded-full transition-all" style="width:0%"></div>
+            </div>
+            <p id="sync-status" class="text-sm text-gray-600 text-center"></p>
+          </div>
         </div>
-      </div>
-    </div>`;
+
+        <div class="bg-white rounded-2xl border border-gray-100 p-6">
+          <h3 class="font-semibold text-gray-900 mb-4">Catálogo sincronizado (demo)</h3>
+          <div class="space-y-2">
+            ${DEMO_PRODUCTS.slice(0,5).map(p => {
+              const sup = p.supplier_id ? getSupplier(p.supplier_id) : null;
+              return `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                <div class="flex items-center gap-3">
+                  <span class="text-duck-500">${ICON[p.iconName] ? ICON[p.iconName](20) : ICON.box(20)}</span>
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">${p.name}</div>
+                    <div class="text-xs text-gray-400">${p.sku} · ${formatPrice(p.price)}${sup ? ` · ${sup.name}` : ''}</div>
+                  </div>
+                </div>
+                <span class="badge ${statusClass(p.status)}">${statusLabel(p.status)}</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  render();
+
+  window.syncSetMode = function(mode) {
+    syncMode = mode;
+    ['csv','odbc','url'].forEach(m => {
+      const tab   = document.getElementById('sync-tab-'+m);
+      const panel = document.getElementById('sync-mode-'+m);
+      if (tab)   tab.className = `px-4 py-2 text-sm font-medium rounded-lg transition-colors ${m===mode ? 'bg-duck-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`;
+      if (panel) panel.classList.toggle('hidden', m !== mode);
+    });
+  };
 }
 
 function simulateSync() {
   const progress = document.getElementById('sync-progress');
-  const bar = document.getElementById('sync-bar');
-  const status = document.getElementById('sync-status');
+  const bar      = document.getElementById('sync-bar');
+  const status   = document.getElementById('sync-status');
+  if (!progress) return;
   progress.classList.remove('hidden');
   const steps = ['Conectando con Ontario…','Leyendo catálogo…','Procesando 15 productos…','Actualizando stock…','Sincronización completada — OK'];
   let i = 0;
@@ -176,7 +283,30 @@ function simulateSync() {
 
 function handleCsvUpload(e) {
   const file = e.target.files[0];
-  if (file) alert('Archivo: ' + file.name + '\n\nEn producción se procesaría este CSV de Ontario.');
+  if (!file) return;
+  const mapping = document.getElementById('csv-mapping');
+  if (!mapping) { alert('Archivo: ' + file.name + '\n\nEn producción se procesaría este CSV de Ontario.'); return; }
+  const demoCols = [
+    ['SKU_ARTICULO', 'sku',         'BB-001'],
+    ['DESCRIPCION',  'name',        'Cochecito Bugaboo Fox 5'],
+    ['PVP',          'price',       '1299.00'],
+    ['STOCK_WEB',    'stock_web',   '1'],
+    ['STOCK_TIENDA', 'stock_store', '2'],
+    ['FAMILIA',      'category',    'Movilidad'],
+    ['ACTIVO',       'status',      '1'],
+  ];
+  document.getElementById('mapping-tbody').innerHTML = demoCols.map(([csv, field, example]) => `
+    <tr class="border-t border-gray-100">
+      <td class="px-3 py-2 font-mono text-gray-700">${csv}</td>
+      <td class="px-3 py-2">
+        <select class="text-xs border border-gray-200 rounded px-1.5 py-1 bg-white">
+          <option value="${field}" selected>${field}</option>
+          <option value="">(ignorar)</option>
+        </select>
+      </td>
+      <td class="px-3 py-2 text-gray-500">${example}</td>
+    </tr>`).join('');
+  mapping.classList.remove('hidden');
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -99,9 +99,10 @@ function renderDashboard(root, active) {
     { key:'lists',     icon: ICON.baby(20),     label:'Listas nacimiento', href: root + 'dashboard/birth-lists/index.html' },
     { key:'customers', icon: ICON.users(20),    label:'Clientes',          href: root + 'dashboard/customers/index.html' },
     { key:'vouchers',  icon: ICON.gift(20),     label:'Vales regalo',      href: root + 'dashboard/vouchers/index.html' },
-    { key:'products',  icon: ICON.box(20),      label:'Productos',         href: root + 'dashboard/products/index.html', badge: lowStock },
-    { key:'sync',      icon: ICON.refresh(20),  label:'Importar Ontario',  href: root + 'dashboard/sync/index.html' },
-    { key:'settings',  icon: ICON.settings(20), label:'Configuración',     href: root + 'dashboard/settings/index.html' },
+    { key:'products',   icon: ICON.box(20),      label:'Productos',          href: root + 'dashboard/products/index.html', badge: lowStock },
+    { key:'suppliers',  icon: ICON.users(20),    label:'Proveedores',        href: root + 'dashboard/suppliers/index.html' },
+    { key:'sync',       icon: ICON.refresh(20),  label:'Importar Ontario',   href: root + 'dashboard/sync/index.html' },
+    { key:'settings',   icon: ICON.settings(20), label:'Configuración',      href: root + 'dashboard/settings/index.html' },
   ];
 
   const navLinks = items.map(i =>

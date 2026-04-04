@@ -61,6 +61,7 @@ function renderCustomersIndex(root) {
               ${lists.length ? `<span class="badge bg-duck-100 text-duck-700">${lists.length} lista${lists.length>1?'s':''}</span>` : ''}
               ${vouchers.length ? `<span class="badge bg-purple-100 text-purple-700">${vouchers.length} vale${vouchers.length>1?'s':''}</span>` : ''}
               ${!lists.length && !vouchers.length ? '<span class="text-xs text-gray-400">Sin actividad</span>' : ''}
+              ${c.contact_channel ? `<span class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded font-medium ${contactChannelClass(c.contact_channel)}">${contactChannelIcon(c.contact_channel)} ${contactChannelLabel(c.contact_channel)}</span>` : ''}
             </div>
           </td>
           <td class="px-4 py-3">
@@ -170,18 +171,29 @@ function renderCustomerDetail(root, customerId) {
           <div class="space-y-2.5">
             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
               <span class="text-duck-500">${ICON.phone(18)}</span>
-              <div>
+              <div class="flex-1">
                 <div class="text-xs text-gray-400">Teléfono</div>
                 <div class="text-sm font-semibold text-gray-900">${c.phone}</div>
               </div>
             </div>
             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
               <span class="text-duck-500">${ICON.mail(18)}</span>
-              <div>
+              <div class="flex-1">
                 <div class="text-xs text-gray-400">Email</div>
                 <div class="text-sm font-semibold text-gray-900">${c.email || '—'}</div>
               </div>
             </div>
+            ${c.contact_channel ? `
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <span class="text-duck-500">${ICON.chat(18)}</span>
+              <div class="flex-1">
+                <div class="text-xs text-gray-400">Canal preferido</div>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-semibold ${contactChannelClass(c.contact_channel)}">${contactChannelIcon(c.contact_channel)} ${contactChannelLabel(c.contact_channel)}</span>
+                  ${c.last_contact ? `<span class="text-xs text-gray-400">Último: ${formatDate(c.last_contact)}</span>` : ''}
+                </div>
+              </div>
+            </div>` : ''}
           </div>
           <a href="https://wa.me/34${c.phone.replace(/\s/g,'')}" target="_blank" class="btn-duck w-full justify-center mt-4 text-sm">${ICON.chat(14)} WhatsApp</a>
         </div>
@@ -300,6 +312,16 @@ function renderCustomerNew(root) {
           <div>
             <label class="label">Email</label>
             <input type="email" name="email" placeholder="cliente@email.com" class="input-field w-full">
+          </div>
+          <div>
+            <label class="label">Canal de contacto preferido</label>
+            <select name="contact_channel" class="input-field w-full bg-white">
+              <option value="">— No especificado —</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="phone">Teléfono</option>
+              <option value="store">Visita en tienda</option>
+              <option value="email">Email</option>
+            </select>
           </div>
           <div>
             <label class="label">Notas internas</label>

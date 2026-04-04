@@ -213,7 +213,10 @@ function renderBirthListDetail(root, listId) {
                 <div class="text-right flex-shrink-0 ml-3">
                   ${isR
                     ? `<div class="text-green-700 text-xs font-semibold flex items-center gap-1">${ICON.check(13)} Reservado</div><div class="text-xs text-gray-400">${res.reserver_name}</div><div class="text-xs text-gray-300">${formatRelativeTime(res.reservedAt)}</div>`
-                    : '<div class="text-xs text-gray-400">Disponible</div>'
+                    : `<button onclick="openManualReserveModal('${list.id}','${item.product_id}','${p.name.replace(/'/g,'&#39;')}')"
+                        class="text-xs bg-duck-600 text-white px-2.5 py-1.5 rounded-lg hover:bg-duck-700 transition-colors font-medium whitespace-nowrap">
+                        ${ICON.plus(11)} En tienda
+                       </button>`
                   }
                 </div>
               </div>`;
@@ -295,6 +298,80 @@ function renderBirthListDetail(root, listId) {
   } else {
     qrContainer.innerHTML = '<p class="text-xs text-gray-400 text-center py-2">QR sin conexión</p>';
   }
+
+  // ── Manual reservation modal (admin) ──────────────────────────
+  let manualModalEl = document.getElementById('manual-reserve-modal');
+  if (!manualModalEl) {
+    manualModalEl = document.createElement('div');
+    manualModalEl.id = 'manual-reserve-modal';
+    document.body.appendChild(manualModalEl);
+  }
+  manualModalEl.className = 'hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+  manualModalEl.innerHTML = `
+    <div class="bg-white rounded-2xl shadow-xl p-7 max-w-sm w-full">
+      <h3 class="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">${ICON.plus(18)} Reserva manual en tienda</h3>
+      <p id="manual-product-name" class="text-duck-700 font-semibold text-sm mb-4"></p>
+      <div class="space-y-3 mb-5">
+        <div>
+          <label class="label">Nombre del regalo (cliente/persona) <span class="text-red-500">*</span></label>
+          <input type="text" id="manual-reserver-name" placeholder="Ej: Abuela Carmen"
+            class="input-field w-full">
+        </div>
+        <div>
+          <label class="label">Teléfono (opcional)</label>
+          <input type="tel" id="manual-reserver-phone" placeholder="612 345 678"
+            class="input-field w-full">
+        </div>
+        <div>
+          <label class="label">Canal de reserva</label>
+          <select id="manual-channel" class="input-field w-full bg-white">
+            <option value="store">Presencial en tienda</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="phone">Teléfono</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button id="manual-confirm-btn" class="flex-1 btn-duck">Confirmar reserva</button>
+        <button onclick="document.getElementById('manual-reserve-modal').classList.add('hidden')"
+          class="px-4 btn-outline-duck">Cancelar</button>
+      </div>
+    </div>`;
+
+  let _pendingManualListId = null;
+  let _pendingManualProductId = null;
+
+  window.openManualReserveModal = function(listId, productId, productName) {
+    _pendingManualListId    = listId;
+    _pendingManualProductId = productId;
+    document.getElementById('manual-product-name').textContent = productName;
+    document.getElementById('manual-reserver-name').value      = '';
+    document.getElementById('manual-reserver-phone').value     = '';
+    document.getElementById('manual-channel').value            = 'store';
+    document.getElementById('manual-reserve-modal').classList.remove('hidden');
+    document.getElementById('manual-reserver-name').focus();
+  };
+
+  document.getElementById('manual-confirm-btn').onclick = function() {
+    const name    = document.getElementById('manual-reserver-name').value.trim();
+    const phone   = document.getElementById('manual-reserver-phone').value.trim();
+    const channel = document.getElementById('manual-channel').value;
+    if (!name) { document.getElementById('manual-reserver-name').focus(); return; }
+    if (isProductReserved(_pendingManualListId, _pendingManualProductId)) {
+      alert('Este producto ya está reservado.');
+      document.getElementById('manual-reserve-modal').classList.add('hidden');
+      return;
+    }
+    const channelLabels = { store:'Tienda', whatsapp:'WhatsApp', phone:'Teléfono' };
+    saveReservation(_pendingManualListId, {
+      product_id:    _pendingManualProductId,
+      reserver_name: name + ' (' + (channelLabels[channel]||channel) + ')',
+      reserver_phone: phone,
+      channel:       channel,
+    });
+    document.getElementById('manual-reserve-modal').classList.add('hidden');
+    renderBirthListDetail(root, _pendingManualListId);
+  };
 }
 
 function printQRCard(listId, root) {
@@ -321,75 +398,356 @@ function printQRCard(listId, root) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// 3-Step wizard for new birth list
+// ─────────────────────────────────────────────────────────────
 
 function renderBirthListNew(root) {
   root = root || '';
 
-  const pc = document.getElementById('page-content');
-  pc.innerHTML = `
-    <div class="max-w-2xl">
-      <div class="flex items-center gap-2 mb-6">
-        <a href="${root}dashboard/birth-lists/index.html" class="text-sm text-gray-400 hover:text-duck-600">← Volver</a>
-      </div>
-      <div class="bg-white rounded-2xl border border-gray-100 p-8">
-        <h2 class="text-xl font-bold text-gray-900 mb-6">Nueva lista de nacimiento</h2>
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-sm text-amber-800 flex items-start gap-2">
-          ${ICON.warning(16)} <span>Modo demo — los datos no se guardan realmente.</span>
+  // Wizard state
+  const state = {
+    step: 1,
+    baby_name: '', surname: '', birth_date: '', status: 'active', template: '',
+    mother_id: '', father_id: '',
+    items: {},  // { product_id: { priority:'high', qty:1, note:'' } }
+  };
+
+  // Template presets
+  const TEMPLATES = {
+    basic: {
+      label: 'Básico recién nacido',
+      desc: 'Cochecito, silla coche, trona, bañera, monitor',
+      ids: ['p1','p2','p3','p7','p4'],
+    },
+    twins: {
+      label: 'Gemelos',
+      desc: 'Carro gemelar + doble de lo esencial',
+      ids: ['p15','p2','p6','p7','p11'],
+    },
+    second: {
+      label: 'Segundo hijo',
+      desc: 'Lo esencial sin lo que ya tendrán',
+      ids: ['p5','p8','p11','p12','p10'],
+    },
+  };
+
+  function applyTemplate(tplKey) {
+    const tpl = TEMPLATES[tplKey];
+    if (!tpl) { state.items = {}; return; }
+    state.items = {};
+    tpl.ids.forEach(id => { state.items[id] = { priority:'high', qty:1, note:'' }; });
+  }
+
+  const stepLabels = ['Bebé', 'Padres', 'Productos'];
+
+  function stepBar() {
+    return `<div class="flex items-center gap-2 mb-8">
+      ${stepLabels.map((l,i) => {
+        const n = i+1;
+        const done  = n < state.step;
+        const active = n === state.step;
+        return `<div class="flex items-center gap-2 ${i>0?'':''}">
+          ${i>0 ? `<div class="h-px w-8 flex-shrink-0 ${done||active ? 'bg-duck-500' : 'bg-gray-200'}"></div>` : ''}
+          <div class="flex items-center gap-1.5">
+            <span class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0
+              ${done  ? 'bg-duck-500 text-white' :
+                active ? 'bg-duck-600 text-white ring-4 ring-duck-100' :
+                         'bg-gray-100 text-gray-500'}">
+              ${done ? ICON.check(12) : n}
+            </span>
+            <span class="text-sm font-medium ${active ? 'text-duck-700' : done ? 'text-gray-700' : 'text-gray-400'}">${l}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  function renderStep1() {
+    const pc = document.getElementById('page-content');
+    pc.innerHTML = `
+      <div class="max-w-2xl">
+        <div class="flex items-center gap-2 mb-6">
+          <a href="${root}dashboard/birth-lists/index.html" class="text-sm text-gray-400 hover:text-duck-600">← Volver</a>
         </div>
-        <form onsubmit="handleNewList(event, '${root}')" class="space-y-5">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="label">Nombre del bebé <span class="text-red-500">*</span></label>
-              <input type="text" name="baby_name" required placeholder="Emma"
-                class="input-field w-full">
+        <div class="bg-white rounded-2xl border border-gray-100 p-8">
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Nueva lista de nacimiento</h2>
+          <p class="text-sm text-gray-400 mb-6">Paso 1 de 3 · Información del bebé</p>
+          ${stepBar()}
+          <div class="space-y-5">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="label">Nombre del bebé <span class="text-red-500">*</span></label>
+                <input id="wiz-baby-name" type="text" placeholder="Emma" value="${state.baby_name}"
+                  class="input-field w-full">
+              </div>
+              <div>
+                <label class="label">Apellido</label>
+                <input id="wiz-surname" type="text" placeholder="García" value="${state.surname}"
+                  class="input-field w-full">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="label">Fecha de parto</label>
+                <input id="wiz-birth-date" type="date" value="${state.birth_date}" class="input-field w-full">
+              </div>
+              <div>
+                <label class="label">Estado inicial</label>
+                <select id="wiz-status" class="input-field w-full bg-white">
+                  <option value="active" ${state.status==='active' ? 'selected' : ''}>Activa</option>
+                  <option value="draft"  ${state.status==='draft'  ? 'selected' : ''}>Borrador</option>
+                </select>
+              </div>
             </div>
             <div>
-              <label class="label">Apellido</label>
-              <input type="text" name="surname" placeholder="García"
-                class="input-field w-full">
+              <label class="label">Plantilla de productos (opcional)</label>
+              <div class="grid grid-cols-3 gap-2 mt-1">
+                <button type="button" onclick="wizSelectTemplate('')"
+                  id="tpl-none"
+                  class="p-3 rounded-xl border text-left text-xs transition-all ${!state.template ? 'border-duck-400 bg-duck-50' : 'border-gray-200 hover:border-duck-200'}">
+                  <div class="font-semibold text-gray-700">Lista vacía</div>
+                  <div class="text-gray-400">Añade productos manualmente</div>
+                </button>
+                ${Object.entries(TEMPLATES).map(([k,t]) => `
+                <button type="button" onclick="wizSelectTemplate('${k}')"
+                  id="tpl-${k}"
+                  class="p-3 rounded-xl border text-left text-xs transition-all ${state.template===k ? 'border-duck-400 bg-duck-50' : 'border-gray-200 hover:border-duck-200'}">
+                  <div class="font-semibold text-gray-700">${t.label}</div>
+                  <div class="text-gray-400">${t.desc}</div>
+                </button>`).join('')}
+              </div>
+            </div>
+            <div class="flex gap-3 pt-2">
+              <button onclick="wizNext1()" class="btn-duck">Siguiente: Padres →</button>
+              <a href="${root}dashboard/birth-lists/index.html" class="btn-outline-duck">Cancelar</a>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4">
+        </div>
+      </div>`;
+
+    window.wizSelectTemplate = function(k) {
+      state.template = k;
+      ['none',...Object.keys(TEMPLATES)].forEach(id => {
+        const btn = document.getElementById('tpl-'+id);
+        if (!btn) return;
+        const active = (k==='' && id==='none') || k===id;
+        btn.className = 'p-3 rounded-xl border text-left text-xs transition-all ' +
+          (active ? 'border-duck-400 bg-duck-50' : 'border-gray-200 hover:border-duck-200');
+      });
+    };
+    window.wizNext1 = function() {
+      const bn = document.getElementById('wiz-baby-name').value.trim();
+      if (!bn) { document.getElementById('wiz-baby-name').focus(); return; }
+      state.baby_name  = bn;
+      state.surname    = document.getElementById('wiz-surname').value.trim();
+      state.birth_date = document.getElementById('wiz-birth-date').value;
+      state.status     = document.getElementById('wiz-status').value;
+      if (state.template) applyTemplate(state.template);
+      state.step = 2;
+      renderStep2();
+    };
+  }
+
+  function renderStep2() {
+    const pc = document.getElementById('page-content');
+    pc.innerHTML = `
+      <div class="max-w-2xl">
+        <div class="flex items-center gap-2 mb-6">
+          <button onclick="wizBack1()" class="text-sm text-gray-400 hover:text-duck-600">← Volver al paso 1</button>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 p-8">
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Lista de ${state.baby_name} ${state.surname}</h2>
+          <p class="text-sm text-gray-400 mb-6">Paso 2 de 3 · Padres / tutores</p>
+          ${stepBar()}
+          <div class="space-y-5">
             <div>
-              <label class="label">Fecha de parto</label>
-              <input type="date" name="birth_date" class="input-field w-full">
+              <label class="label">Madre / tutora principal <span class="text-red-500">*</span></label>
+              <select id="wiz-mother" class="input-field w-full bg-white">
+                <option value="">— Seleccionar cliente —</option>
+                ${DEMO_CUSTOMERS.map(c => `<option value="${c.id}" ${state.mother_id===c.id?'selected':''}>${c.full_name} · ${c.phone}</option>`).join('')}
+              </select>
+              <p class="text-xs text-gray-400 mt-1">
+                ¿No está? <a href="${root}dashboard/customers/new/index.html" class="text-duck-600 hover:underline">Crear nuevo cliente →</a>
+              </p>
             </div>
             <div>
-              <label class="label">Estado inicial</label>
-              <select name="status" class="input-field w-full bg-white">
-                <option value="draft">Borrador</option>
-                <option value="active">Activa</option>
+              <label class="label">Padre / segundo tutor (opcional)</label>
+              <select id="wiz-father" class="input-field w-full bg-white">
+                <option value="">— Sin padre / opcional —</option>
+                ${DEMO_CUSTOMERS.map(c => `<option value="${c.id}" ${state.father_id===c.id?'selected':''}>${c.full_name} · ${c.phone}</option>`).join('')}
               </select>
             </div>
-          </div>
-          <div>
-            <label class="label">Madre</label>
-            <select name="mother_id" class="input-field w-full bg-white">
-              <option value="">— Seleccionar cliente —</option>
-              ${DEMO_CUSTOMERS.map(c => `<option value="${c.id}">${c.full_name}</option>`).join('')}
-            </select>
-            <p class="text-xs text-gray-400 mt-1">
-              ¿No está en la lista? <a href="${root}dashboard/customers/new/index.html" class="text-duck-600 hover:underline">Crear nuevo cliente →</a>
-            </p>
-          </div>
-          <div>
-            <label class="label">Productos</label>
-            <div class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3">
-              ${DEMO_PRODUCTS.filter(p=>p.status==='active').map(p => `
-                <label class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 hover:border-duck-300 cursor-pointer has-[:checked]:border-duck-400 has-[:checked]:bg-duck-50">
-                  <input type="checkbox" name="products" value="${p.id}" class="accent-duck-600">
-                  <span class="text-duck-500 flex-shrink-0">${ICON[p.iconName] ? ICON[p.iconName](18) : ICON.box(18)}</span>
-                  <span class="text-xs font-medium text-gray-800 line-clamp-2">${p.name}</span>
-                </label>`).join('')}
+            <div class="bg-gray-50 rounded-xl p-4">
+              <p class="text-xs font-semibold text-gray-600 mb-1">Resumen hasta ahora:</p>
+              <p class="text-sm text-gray-700">
+                <strong>${state.baby_name} ${state.surname}</strong>
+                ${state.birth_date ? ` · Parto ${formatDate(state.birth_date)}` : ''}
+                · <span class="badge ${listStatusClass(state.status)}">${listStatusLabel(state.status)}</span>
+                ${state.template ? ` · Plantilla: ${TEMPLATES[state.template]?.label}` : ''}
+              </p>
+            </div>
+            <div class="flex gap-3 pt-2">
+              <button onclick="wizNext2()" class="btn-duck">Siguiente: Productos →</button>
             </div>
           </div>
-          <div class="flex gap-3 pt-2">
-            <button type="submit" class="btn-duck">Crear lista (demo)</button>
+        </div>
+      </div>`;
+
+    window.wizBack1 = function() { state.step = 1; renderStep1(); };
+    window.wizNext2 = function() {
+      state.mother_id = document.getElementById('wiz-mother').value;
+      state.father_id = document.getElementById('wiz-father').value;
+      if (!state.mother_id) { document.getElementById('wiz-mother').focus(); return; }
+      state.step = 3;
+      renderStep3();
+    };
+  }
+
+  function renderStep3() {
+    let catFilter3 = '';
+    let search3    = '';
+
+    function buildProducts() {
+      const q = search3.toLowerCase();
+      return DEMO_PRODUCTS.filter(p =>
+        p.status !== 'inactive' &&
+        (!catFilter3 || p.category === catFilter3) &&
+        (!q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q))
+      );
+    }
+
+    function renderProductGrid3() {
+      const prods = buildProducts();
+      const list3 = document.getElementById('step3-prod-list');
+      if (!list3) return;
+      list3.innerHTML = prods.map(p => {
+        const sel = !!state.items[p.id];
+        const item = state.items[p.id] || { priority:'high', qty:1, note:'' };
+        return `
+        <div class="border rounded-xl p-3 transition-all ${sel ? 'border-duck-400 bg-duck-50' : 'border-gray-200'}">
+          <div class="flex items-start gap-3">
+            <input type="checkbox" id="cb-${p.id}" ${sel ? 'checked' : ''}
+              onchange="wizToggleProduct('${p.id}',this.checked)"
+              class="accent-duck-600 mt-0.5 flex-shrink-0 w-4 h-4 cursor-pointer">
+            <span class="text-duck-500 flex-shrink-0 mt-0.5">${ICON[p.iconName] ? ICON[p.iconName](18) : ICON.box(18)}</span>
+            <div class="flex-1 min-w-0">
+              <label for="cb-${p.id}" class="text-xs font-semibold text-gray-800 cursor-pointer line-clamp-1">${p.name}</label>
+              <div class="text-xs text-gray-400">${p.category} · ${formatPrice(p.price)}</div>
+            </div>
+          </div>
+          ${sel ? `
+          <div class="mt-3 grid grid-cols-3 gap-2 pl-7">
+            <div>
+              <label class="text-xs text-gray-500">Prioridad</label>
+              <select onchange="wizItemField('${p.id}','priority',this.value)" class="w-full text-xs border border-gray-200 rounded px-1.5 py-1 bg-white mt-0.5">
+                <option value="high"   ${item.priority==='high'  ?'selected':''}>Alta</option>
+                <option value="medium" ${item.priority==='medium'?'selected':''}>Media</option>
+                <option value="low"    ${item.priority==='low'   ?'selected':''}>Baja</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-gray-500">Cant.</label>
+              <input type="number" min="1" max="10" value="${item.qty}"
+                onchange="wizItemField('${p.id}','qty',parseInt(this.value)||1)"
+                class="w-full text-xs border border-gray-200 rounded px-1.5 py-1 mt-0.5">
+            </div>
+            <div class="col-span-3">
+              <label class="text-xs text-gray-500">Nota (color, variante…)</label>
+              <input type="text" value="${item.note}" placeholder="Ej: Color sand"
+                onchange="wizItemField('${p.id}','note',this.value)"
+                class="w-full text-xs border border-gray-200 rounded px-1.5 py-1 mt-0.5">
+            </div>
+          </div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    const pc = document.getElementById('page-content');
+    const selectedCount = Object.keys(state.items).length;
+    pc.innerHTML = `
+      <div class="max-w-3xl">
+        <div class="flex items-center gap-2 mb-6">
+          <button onclick="wizBack2()" class="text-sm text-gray-400 hover:text-duck-600">← Volver al paso 2</button>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 p-8">
+          <div class="flex items-start justify-between gap-4 mb-2">
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">Lista de ${state.baby_name} ${state.surname}</h2>
+              <p class="text-sm text-gray-400">Paso 3 de 3 · Productos de la lista</p>
+            </div>
+            <span id="sel-count" class="badge bg-duck-100 text-duck-700 flex-shrink-0">${selectedCount} seleccionados</span>
+          </div>
+          ${stepBar()}
+          <div class="flex gap-2 mb-4">
+            <div class="relative flex-1">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">${ICON.search(14)}</span>
+              <input id="step3-search" type="text" placeholder="Buscar producto…"
+                class="w-full pl-8 input-field" oninput="wizSearch3(this.value)">
+            </div>
+            <select id="step3-cat" class="input-field bg-white" onchange="wizCat3(this.value)">
+              <option value="">Todas las categorías</option>
+              ${CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('')}
+            </select>
+          </div>
+          <div id="step3-prod-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-96 overflow-y-auto mb-6 pr-1"></div>
+          <div class="bg-gray-50 rounded-xl p-4 mb-6">
+            <p class="text-xs font-semibold text-gray-600 mb-1">Resumen de la lista:</p>
+            <p class="text-sm text-gray-700">
+              <strong>${state.baby_name} ${state.surname}</strong>
+              ${state.birth_date ? ` · Parto ${formatDate(state.birth_date)}` : ''}
+              · <span class="badge ${listStatusClass(state.status)}">${listStatusLabel(state.status)}</span>
+              · <strong id="sum-count">${selectedCount}</strong> productos
+              · Total aprox. <strong id="sum-total">${formatPrice(Object.keys(state.items).reduce((s,id) => { const p=getProduct(id); return s+(p?p.price*(state.items[id].qty||1):0); },0))}</strong>
+            </p>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5 text-sm text-amber-800 flex items-start gap-2">
+            ${ICON.warning(16)} <span>Modo demo — los datos no se guardan realmente.</span>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="wizSubmit()" class="btn-duck flex-1 justify-center">Crear lista (demo)</button>
             <a href="${root}dashboard/birth-lists/index.html" class="btn-outline-duck">Cancelar</a>
           </div>
-        </form>
-      </div>
-    </div>`;
+        </div>
+      </div>`;
+
+    renderProductGrid3();
+
+    window.wizBack2 = function() { state.step = 2; renderStep2(); };
+    window.wizToggleProduct = function(pid, checked) {
+      if (checked) {
+        if (!state.items[pid]) state.items[pid] = { priority:'high', qty:1, note:'' };
+      } else {
+        delete state.items[pid];
+      }
+      updateSummary3();
+      renderProductGrid3();
+    };
+    window.wizItemField = function(pid, field, val) {
+      if (!state.items[pid]) state.items[pid] = { priority:'high', qty:1, note:'' };
+      state.items[pid][field] = val;
+      updateSummary3();
+    };
+    window.wizSearch3 = function(v) { search3 = v; renderProductGrid3(); };
+    window.wizCat3    = function(v) { catFilter3 = v; renderProductGrid3(); };
+    window.wizSubmit  = function() {
+      const total = formatPrice(Object.keys(state.items).reduce((s,id) => { const p=getProduct(id); return s+(p?p.price*(state.items[id].qty||1):0);},0));
+      alert(`Demo: Lista creada con ${Object.keys(state.items).length} productos (aprox. ${total}). En producción se guardaría en la base de datos.`);
+      window.location.href = root + 'dashboard/birth-lists/index.html';
+    };
+  }
+
+  function updateSummary3() {
+    const count = Object.keys(state.items).length;
+    const total = Object.keys(state.items).reduce((s,id) => { const p=getProduct(id); return s+(p?p.price*(state.items[id].qty||1):0);},0);
+    const sc = document.getElementById('sel-count');
+    const su = document.getElementById('sum-count');
+    const st = document.getElementById('sum-total');
+    if (sc) sc.textContent = count + ' seleccionados';
+    if (su) su.textContent = count;
+    if (st) st.textContent = formatPrice(total);
+  }
+
+  renderStep1();
 }
 
 function handleNewList(e, root) {
