@@ -1,0 +1,91 @@
+/* Mamá Pato – estilos personalizados */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --duck-50:  #eef7fb;
+  --duck-100: #c5e8f5;
+  --duck-200: #8ed4ee;
+  --duck-300: #50b9e0;
+  --duck-400: #2ba4cc;
+  --duck-500: #2596be;
+  --duck-600: #2596be;
+  --duck-700: #1e7da3;
+  --duck-800: #176585;
+  --duck-900: #12506b;
+}
+
+body { font-family: 'Inter', sans-serif; }
+
+.btn-duck {
+  background-color: var(--duck-600);
+  color: white;
+  padding: .5rem 1.25rem;
+  border-radius: .5rem;
+  font-weight: 600;
+  transition: background-color .15s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  border: none;
+  text-decoration: none;
+}
+.btn-duck:hover { background-color: var(--duck-700); }
+
+.btn-outline-duck {
+  border: 2px solid var(--duck-600);
+  color: var(--duck-600);
+  padding: .4rem 1.1rem;
+  border-radius: .5rem;
+  font-weight: 600;
+  transition: all .15s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: transparent;
+  text-decoration: none;
+}
+.btn-outline-duck:hover { background-color: var(--duck-50); }
+
+.badge { padding: .2rem .65rem; border-radius: 9999px; font-size: .75rem; font-weight: 600; }
+
+/* Sidebar links */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .6rem 1rem;
+  border-radius: .5rem;
+  color: #374151;
+  text-decoration: none;
+  font-size: .875rem;
+  font-weight: 500;
+  transition: all .15s;
+}
+.sidebar-link:hover  { background: var(--duck-50); color: var(--duck-700); }
+.sidebar-link.active { background: var(--duck-100); color: var(--duck-700); font-weight: 600; }
+
+/* WhatsApp FAB */
+.whatsapp-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: #25d366;
+  color: white;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  text-decoration: none;
+  z-index: 999;
+  transition: transform .2s;
+}
+.whatsapp-fab:hover { transform: scale(1.1); }
+
+/* Card hover */
+.card-hover { transition: box-shadow .2s, transform .2s; }
+.card-hover:hover { box-shadow: 0 8px 24px rgba(0,0,0,.1); transform: translateY(-2px); }
