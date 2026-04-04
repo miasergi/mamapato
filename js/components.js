@@ -84,6 +84,95 @@ function renderPublicFooter(root) {
 }
 
 /**
+ * Renderiza la página de detalle de un producto público.
+ * Rellena #product-page, actualiza document.title,
+ * y llama a renderPublicHeader / renderPublicFooter.
+ * @param {string} root       Ruta relativa a la raíz (ej. '../../../')
+ * @param {string} productId  ID del producto (ej. 'p1')
+ */
+function renderProductDetailPage(root, productId) {
+  root = root || '';
+  const p = getProduct(productId);
+  const pg = document.getElementById('product-page');
+  if (!p || !pg) return;
+
+  document.title = p.name + ' · Mamá Pato';
+  renderPublicHeader(root, 'productos');
+  renderPublicFooter(root);
+
+  const stockWebClass   = p.stock_web   === 0 ? 'text-red-600' : 'text-gray-900';
+  const stockStoreClass = p.stock_store === 0 ? 'text-red-600' : 'text-gray-900';
+  const stockBadge = p.stock_web > 0
+    ? `<span class="badge bg-green-100 text-green-700">En stock web</span>`
+    : `<span class="badge bg-gray-100 text-gray-500">Sin stock web</span>`;
+  const statusBanner = p.status !== 'active'
+    ? `<div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-2 text-sm text-amber-800">
+        ${ICON.warning(15)} <span><strong>${statusLabel(p.status)}</strong> — Este producto no está disponible actualmente en la web.</span>
+      </div>` : '';
+  const related = DEMO_PRODUCTS.filter(rp => rp.id !== p.id && rp.status === 'active').slice(0, 4);
+
+  pg.innerHTML = `
+    <nav class="text-sm text-gray-400 mb-6">
+      <a href="${root}tienda/index.html" class="hover:text-duck-600">Tienda</a>
+      <span class="mx-2">/</span>
+      <a href="${root}tienda/productos/index.html" class="hover:text-duck-600">Productos</a>
+      <span class="mx-2">/</span>
+      <span class="text-gray-700">${p.name}</span>
+    </nav>
+    ${statusBanner}
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        <div class="bg-duck-50 flex items-center justify-center h-72 md:h-auto text-duck-300 p-12">
+          ${ICON[p.iconName] ? ICON[p.iconName](128) : ICON.box(128)}
+        </div>
+        <div class="p-8 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="badge bg-duck-100 text-duck-700">${p.category}</span>
+              <span class="badge bg-gray-100 text-gray-600 font-mono text-xs">${p.sku}</span>
+              ${stockBadge}
+            </div>
+            <h1 class="text-2xl font-extrabold text-gray-900 mb-3">${p.name}</h1>
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">${p.description}</p>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+              <div class="bg-gray-50 rounded-xl p-3 text-center">
+                <div class="text-xl font-bold ${stockWebClass}">${p.stock_web}</div>
+                <div class="text-xs text-gray-500">Unidades web</div>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 text-center">
+                <div class="text-xl font-bold ${stockStoreClass}">${p.stock_store}</div>
+                <div class="text-xs text-gray-500">En tienda física</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="text-3xl font-extrabold text-duck-600 mb-4">${formatPrice(p.price)}</div>
+            <div class="flex flex-col gap-3">
+              <a href="https://wa.me/34964000000?text=${encodeURIComponent('Hola, me interesa: ' + p.name)}"
+                 target="_blank" class="btn-duck w-full justify-center py-3 text-base">
+                ${ICON.chat(18)} Consultar disponibilidad
+              </a>
+              <a href="${root}lista/index.html" class="btn-outline-duck w-full justify-center py-2.5 text-sm">
+                ${ICON.bottle(16)} Añadir a lista de nacimiento
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-900 mb-6">Más productos</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      ${related.map(rp => `
+        <a href="${root}tienda/productos/${rp.slug}/index.html"
+           class="bg-white rounded-xl border border-gray-100 p-4 card-hover block text-center">
+          <div class="flex justify-center mb-2 text-duck-400">${ICON[rp.iconName] ? ICON[rp.iconName](40) : ICON.box(40)}</div>
+          <div class="text-xs font-semibold text-gray-800 mb-1 line-clamp-2">${rp.name}</div>
+          <div class="text-duck-600 font-bold text-sm">${formatPrice(rp.price)}</div>
+        </a>`).join('')}
+    </div>`;
+}
+
+/**
  * Renderiza el layout del dashboard (sidebar + header) en #dashboard-layout.
  * Llama a requireAuth(root) antes de renderizar.
  * @param {string} root    Ruta relativa a la raíz

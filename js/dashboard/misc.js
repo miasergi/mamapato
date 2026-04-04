@@ -47,6 +47,11 @@ function renderProductsDashboard(root) {
           </div>
         </td>
         <td class="px-4 py-3"><span class="badge ${statusClass(p.status)}">${statusLabel(p.status)}</span></td>
+        <td class="px-4 py-3">
+          ${p.status === 'active'
+            ? `<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">${ICON.check(11)} Web</span>`
+            : `<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-gray-100 text-gray-400">— Web</span>`}
+        </td>
       </tr>`;
     }).join('');
   }
@@ -91,6 +96,7 @@ function renderProductsDashboard(root) {
               <th class="px-4 py-3 text-left">Precio</th>
               <th class="px-4 py-3 text-left">Stock</th>
               <th class="px-4 py-3 text-left">Estado</th>
+              <th class="px-4 py-3 text-left">Visible web</th>
             </tr>
           </thead>
           <tbody id="prod-tbody"></tbody>

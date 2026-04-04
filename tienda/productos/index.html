@@ -49,10 +49,10 @@
     renderPublicHeader('../../', 'productos');
     renderPublicFooter('../../');
 
-    // Populate category filter with only tienda-available categories
+    // Populate category filter from all active web products
     const sel = document.getElementById('cat-filter');
-    const tiendaCats = [...new Set(DEMO_PRODUCTS.filter(p => TIENDA_IDS.has(p.id) && p.status === 'active').map(p => p.category))].sort();
-    tiendaCats.forEach(c => {
+    const webCats = [...new Set(DEMO_PRODUCTS.filter(p => p.status === 'active').map(p => p.category))].sort();
+    webCats.forEach(c => {
       const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt);
     });
 
@@ -60,14 +60,10 @@
     const urlCat = new URLSearchParams(window.location.search).get('cat');
     if (urlCat) sel.value = urlCat;
 
-    // Only show products with a public tienda page (p1–p8)
-    const TIENDA_IDS = new Set(['p1','p2','p3','p4','p5','p6','p7','p8']);
-
     function renderProducts() {
       const q   = document.getElementById('search').value.toLowerCase();
       const cat = document.getElementById('cat-filter').value;
       const filtered = DEMO_PRODUCTS.filter(p =>
-        TIENDA_IDS.has(p.id) &&
         p.status === 'active' &&
         (!q   || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)) &&
         (!cat || p.category === cat)
@@ -80,13 +76,11 @@
         const stockBadge = p.stock_web > 0
           ? `<span class="badge bg-green-100 text-green-700">En stock (${p.stock_web})</span>`
           : `<span class="badge bg-gray-100 text-gray-500">Sin stock web</span>`;
-        const statusBadge = p.status !== 'active'
-          ? `<span class="badge ${statusClass(p.status)} ml-1">${statusLabel(p.status)}</span>` : '';
         grid.innerHTML += `
           <a href="${p.slug}/index.html" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover group block">
             <div class="bg-duck-50 h-44 flex items-center justify-center text-duck-400 group-hover:bg-duck-100 transition-colors">${ICON[p.iconName] ? ICON[p.iconName](64) : ICON.box(64)}</div>
             <div class="p-4">
-              <div class="flex flex-wrap gap-1 mb-2">${stockBadge}${statusBadge}</div>
+              <div class="flex flex-wrap gap-1 mb-2">${stockBadge}</div>
               <h3 class="font-semibold text-gray-900 text-sm leading-snug mb-1 group-hover:text-duck-700">${p.name}</h3>
               <p class="text-xs text-gray-400 mb-3">${p.category} · ${p.sku}</p>
               <div class="text-duck-600 font-bold text-xl">${formatPrice(p.price)}</div>
