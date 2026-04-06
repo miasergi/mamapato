@@ -69,7 +69,13 @@ function renderBirthListsIndex(root) {
           </td>
           <td class="px-4 py-3"><span class="badge ${listStatusClass(l.status)}">${listStatusLabel(l.status)}</span></td>
           <td class="px-4 py-3">
-            <a href="${root}dashboard/birth-lists/${l.id}/index.html" class="text-sm text-duck-600 hover:underline font-medium">Ver</a>
+            <div class="flex gap-1.5">
+              <a href="${root}dashboard/birth-lists/${l.id}/index.html" class="text-xs px-2 py-1 rounded-lg bg-duck-50 text-duck-700 hover:bg-duck-100 font-medium">Ver</a>
+              <button onclick="openBirthListModal(getBirthList('${l.id}'), ()=>renderBirthListsIndex('${root}'))"
+                class="text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium">Editar</button>
+              <button onclick="_confirmDeleteList('${l.id}','${root}')"
+                class="text-xs px-2 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium">Eliminar</button>
+            </div>
           </td>
         </tr>`;
     }).join('');
@@ -86,7 +92,7 @@ function renderBirthListsIndex(root) {
         <option value="closed">Cerradas</option>
         <option value="draft">Borradores</option>
       </select>
-      <a href="${root}dashboard/birth-lists/new/index.html" class="btn-duck whitespace-nowrap">${ICON.plus(16)} Nueva lista</a>
+      <button onclick="openBirthListModal(null, ()=>renderBirthListsIndex('${root}'))" class="btn-duck whitespace-nowrap">${ICON.plus(16)} Nueva lista</button>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
@@ -101,7 +107,7 @@ function renderBirthListsIndex(root) {
               <th class="px-4 py-3 text-left">Progreso</th>
               <th class="px-4 py-3 text-left">EUR</th>
               <th class="px-4 py-3 text-left">Estado</th>
-              <th class="px-4 py-3"></th>
+              <th class="px-4 py-3 text-left">Acciones</th>
             </tr>
           </thead>
           <tbody id="list-tbody"></tbody>
@@ -112,6 +118,12 @@ function renderBirthListsIndex(root) {
   renderTable();
   document.getElementById('list-search').addEventListener('input', e => { search = e.target.value; renderTable(); });
   document.getElementById('status-filter').addEventListener('change', e => { filter = e.target.value; renderTable(); });
+  window._confirmDeleteList = function(id, rt) {
+    const l = getBirthList(id); if (!l) return;
+    openConfirmModal('Eliminar lista', `¿Eliminar la lista de <strong>${l.baby_name} ${l.surname}</strong>?`, () => {
+      deleteBirthList(id); showToast('Lista eliminada'); renderBirthListsIndex(rt);
+    });
+  };
 }
 
 // ─────────────────────────────────────────────────────────────

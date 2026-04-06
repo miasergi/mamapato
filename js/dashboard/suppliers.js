@@ -25,9 +25,12 @@ function renderSuppliersIndex(root) {
           <span class="badge bg-duck-100 text-duck-700">${products.length} producto${products.length !== 1 ? 's' : ''}</span>
         </td>
         <td class="px-5 py-4 text-right">
-          <button class="btn-outline-duck text-xs py-1.5" onclick="event.stopPropagation();window.location.href='${root}dashboard/suppliers/${s.id}/index.html'">
-            Ver detalle
-          </button>
+          <div class="flex gap-1.5 justify-end">
+            <button onclick="openSupplierModal(getSupplier('${s.id}'), ()=>renderSuppliersIndex('${root}'))" onclick="event.stopPropagation()"
+              class="btn-outline-duck text-xs py-1.5">Editar</button>
+            <button onclick="event.stopPropagation();_confirmDeleteSupplier('${s.id}','${root}')"
+              class="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium border border-red-200">Eliminar</button>
+          </div>
         </td>
       </tr>`;
   }).join('');
@@ -38,9 +41,9 @@ function renderSuppliersIndex(root) {
         <h1 class="text-2xl font-bold text-gray-900">Proveedores</h1>
         <p class="text-gray-400 text-sm mt-0.5">${suppliers.length} proveedores registrados</p>
       </div>
-      <a href="${root}dashboard/suppliers/new/index.html" class="btn-duck">
+      <button onclick="openSupplierModal(null, ()=>renderSuppliersIndex('${root}'))" class="btn-duck">
         ${ICON.plus(16)} Nuevo proveedor
-      </a>
+      </button>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <table class="w-full">
@@ -57,6 +60,13 @@ function renderSuppliersIndex(root) {
         <tbody>${rows}</tbody>
       </table>
     </div>`;
+
+  window._confirmDeleteSupplier = function(id, rt) {
+    const s = getSupplier(id); if (!s) return;
+    openConfirmModal('Eliminar proveedor', `¿Seguro que quieres eliminar a <strong>${s.name}</strong>?`, () => {
+      deleteSupplier(id); showToast('Proveedor eliminado'); renderSuppliersIndex(rt);
+    });
+  };
 }
 
 // ─────────────────────────────────────────────────────────────

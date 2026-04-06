@@ -385,3 +385,295 @@ function contactChannelClass(ch) {
 
 // ── Categories ──────────────────────────────────────────────────
 const CATEGORIES = [...new Set(DEMO_PRODUCTS.map(p => p.category))].sort();
+
+// =============================================================
+//  LIVE CRUD SYSTEM  (v4)
+// =============================================================
+
+// ── Live-data storage keys ──────────────────────────────────────
+const LIVE_PRODUCTS_KEY   = 'mp_live_products_v1';
+const LIVE_CUSTOMERS_KEY  = 'mp_live_customers_v1';
+const LIVE_LISTS_KEY      = 'mp_live_lists_v1';
+const LIVE_VOUCHERS_KEY   = 'mp_live_vouchers_v1';
+const LIVE_SUPPLIERS_KEY  = 'mp_live_suppliers_v1';
+const ACTIVITY_LOG_KEY    = 'mp_activity_log_v1';
+const FICHAJES_KEY        = 'mp_fichajes_v1';
+const TURNOS_KEY          = 'mp_turnos_v1';
+
+// ── Employees ──────────────────────────────────────────────────
+const DEMO_EMPLOYEES = [
+  { id:'e1', name:'Carmen Soler',  role:'admin', email:'carmen@mamapato.es', pin:'1234', color:'duck',   avatar:'CS', weekly_hours:40 },
+  { id:'e2', name:'Marta Blanco',  role:'staff', email:'marta@mamapato.es',  pin:'5678', color:'green',  avatar:'MB', weekly_hours:35 },
+  { id:'e3', name:'Javier López',  role:'staff', email:'javi@mamapato.es',   pin:'9012', color:'blue',   avatar:'JL', weekly_hours:35 },
+  { id:'e4', name:'Rosa Gil',      role:'staff', email:'rosa@mamapato.es',   pin:'3456', color:'purple', avatar:'RG', weekly_hours:20 },
+];
+
+// ── Demo conversations (WhatsApp + email) ───────────────────────
+const DEMO_MESSAGES = [
+  { id:'msg1', channel:'whatsapp', contact:'Laura García', phone:'612345678',
+    preview:'¿El Bugaboo Fox 5 viene con el adaptador de capazo?',
+    ts: Date.now()-1000*3600*1, unread:true,
+    thread:[
+      { from:'contact', text:'Hola! Quería preguntar si el Bugaboo Fox 5 viene con el adaptador de capazo incluido o es aparte 🙏', ts:Date.now()-1000*3600*1 },
+      { from:'bot',     text:'Hola Laura 👋 El Fox 5 incluye capazo y silla de paseo. El adaptador para silla de coche es accesorio aparte (unos 69€). ¿Te lo reservamos?', ts:Date.now()-1000*3600*0.8, aiGenerated:true },
+    ]
+  },
+  { id:'msg2', channel:'whatsapp', contact:'Carmen López', phone:'656789012',
+    preview:'Buenos días, quería info sobre las listas de nacimiento…',
+    ts: Date.now()-1000*3600*3, unread:true,
+    thread:[
+      { from:'contact', text:'Buenos días, quería info sobre las listas de nacimiento', ts:Date.now()-1000*3600*3 },
+      { from:'contact', text:'¿Cómo funciona? ¿Es gratis hacerla?', ts:Date.now()-1000*3600*2.9 },
+    ]
+  },
+  { id:'msg3', channel:'whatsapp', contact:'Javier Torres', phone:'689012345',
+    preview:'¿Hay descuento si compramos todo de la lista?',
+    ts: Date.now()-1000*3600*5, unread:false,
+    thread:[
+      { from:'contact', text:'Hola! Somos los padres de Hugo. ¿Hay algún descuento si compramos varios artículos de la lista juntos?', ts:Date.now()-1000*3600*5 },
+      { from:'staff',   text:'Hola Javier! Por supuesto, 3+ artículos de la misma lista = 5% de descuento. ¿Pasáis por la tienda?', ts:Date.now()-1000*3600*4.5 },
+      { from:'contact', text:'Genial! Esta tarde pasamos 😊', ts:Date.now()-1000*3600*4 },
+      { from:'staff',   text:'Perfecto, os esperamos! 🐥', ts:Date.now()-1000*3600*3.8 },
+    ]
+  },
+  { id:'msg4', channel:'email', contact:'Sofía Martínez', email:'sofia.m@email.com',
+    subject:'Consulta porteo ergonómico',
+    preview:'Me gustaría saber la diferencia entre Ergobaby Omni y BabyBjörn…',
+    ts: Date.now()-1000*3600*8, unread:true,
+    thread:[
+      { from:'contact', text:'Estimados, me gustaría saber más sobre la diferencia entre el Ergobaby Omni y el BabyBjörn. Mi bebé tiene 3 meses. Muchas gracias, Sofía', ts:Date.now()-1000*3600*8 },
+    ]
+  },
+  { id:'msg5', channel:'email', contact:'Pilar Gómez', email:'pilar.gomez@email.com',
+    subject:'Lista de nacimiento Martina',
+    preview:'Me pondría en contacto porque quiero activar la lista…',
+    ts: Date.now()-1000*3600*24, unread:false,
+    thread:[
+      { from:'contact', text:'Buenos días,\n\nQuiero activar la lista de nacimiento de Martina. ¿Podemos quedar esta semana?\n\nSaludos, Pilar', ts:Date.now()-1000*3600*24 },
+      { from:'staff',   text:'Hola Pilar! Tenemos disponibilidad el miércoles y jueves por la tarde. ¿Qué te viene mejor?', ts:Date.now()-1000*3600*20 },
+      { from:'contact', text:'El jueves a las 17h perfecto, muchas gracias!', ts:Date.now()-1000*3600*18 },
+    ]
+  },
+  { id:'msg6', channel:'whatsapp', contact:'Marta Sánchez Gil', phone:'667890123',
+    preview:'Soy la abuela de Emma 😊 ¿Puedo comprar directamente para la lista?',
+    ts: Date.now()-1000*3600*26, unread:false,
+    thread:[
+      { from:'contact', text:'Hola! Soy Marta, la abuela de Emma García 😊 ¿Puedo comprar el cochecito directamente para que lo anoten como regalado en la lista?', ts:Date.now()-1000*3600*26 },
+      { from:'bot',     text:'¡Hola Marta! Qué ilusión 🎉 Claro, pásate por la tienda o llámanos y lo marcamos en la lista ahora mismo. ¿Tienes preferencia de color?', ts:Date.now()-1000*3600*25.5, aiGenerated:true },
+      { from:'contact', text:'Arena o marino, lo que quede más bonito 😊', ts:Date.now()-1000*3600*25 },
+    ]
+  },
+];
+
+// ── Demo Ontario ERP data ───────────────────────────────────────
+const DEMO_ONTARIO = {
+  monthlySales: [
+    { month:'2025-05', label:'May 25', total:8420,  orders:34, returned:250 },
+    { month:'2025-06', label:'Jun 25', total:9180,  orders:38, returned:180 },
+    { month:'2025-07', label:'Jul 25', total:7600,  orders:29, returned:320 },
+    { month:'2025-08', label:'Ago 25', total:6930,  orders:26, returned:0   },
+    { month:'2025-09', label:'Sep 25', total:8850,  orders:35, returned:449 },
+    { month:'2025-10', label:'Oct 25', total:11200, orders:43, returned:0   },
+    { month:'2025-11', label:'Nov 25', total:14300, orders:58, returned:329 },
+    { month:'2025-12', label:'Dic 25', total:18900, orders:76, returned:149 },
+    { month:'2026-01', label:'Ene 26', total:9200,  orders:37, returned:0   },
+    { month:'2026-02', label:'Feb 26', total:8700,  orders:35, returned:99  },
+    { month:'2026-03', label:'Mar 26', total:10400, orders:41, returned:189 },
+    { month:'2026-04', label:'Abr 26', total:4800,  orders:19, returned:0   },
+  ],
+  topProducts: [
+    { name:'Cochecito Bugaboo Fox 5',      sku:'BB-001', sold:12, revenue:15588 },
+    { name:'Silla coche Maxi-Cosi Pearl',  sku:'BB-002', sold:28, revenue:12572 },
+    { name:'Mochila Ergobaby Omni',        sku:'BB-005', sold:19, revenue:3591  },
+    { name:'Monitor BabyPhone Philips',    sku:'BB-004', sold:31, revenue:3069  },
+    { name:'Cuna colecho Chicco Next2Me',  sku:'BB-006', sold:9,  revenue:2511  },
+  ],
+  expenses: [
+    { category:'Alquiler',    amount:1800, month:'2026-03' },
+    { category:'Proveedores', amount:6240, month:'2026-03' },
+    { category:'Personal',    amount:5200, month:'2026-03' },
+    { category:'Suministros', amount:340,  month:'2026-03' },
+    { category:'Marketing',   amount:280,  month:'2026-03' },
+    { category:'Seguros',     amount:120,  month:'2026-03' },
+    { category:'Alquiler',    amount:1800, month:'2026-04' },
+    { category:'Proveedores', amount:2100, month:'2026-04' },
+    { category:'Personal',    amount:5200, month:'2026-04' },
+    { category:'Suministros', amount:210,  month:'2026-04' },
+  ],
+  invoicesPending: [
+    { id:'FAC-2026-041', supplier:'Stokke AS',        amount:987,  due:'2026-04-15', status:'pending' },
+    { id:'FAC-2026-038', supplier:'Ergobaby EU',       amount:1134, due:'2026-04-20', status:'pending' },
+    { id:'FAC-2026-035', supplier:'Philips/Braun',     amount:445,  due:'2026-04-30', status:'pending' },
+    { id:'FAC-2026-029', supplier:'Artsana (Chicco)',  amount:558,  due:'2026-03-31', status:'overdue' },
+  ],
+  recentOrders: [
+    { id:'PV-2026-1021', customer:'Laura García',    date:'2026-04-05', total:99,   status:'paid',    items:'Monitor BabyPhone' },
+    { id:'PV-2026-1022', customer:'Javier Torres',   date:'2026-04-05', total:449,  status:'paid',    items:'Silla Maxi-Cosi + Acc.' },
+    { id:'PV-2026-1023', customer:'Alberto Ramos',   date:'2026-04-04', total:59,   status:'paid',    items:'Saco dormir Ergobaby' },
+    { id:'PV-2026-1020', customer:'Pilar Gómez',     date:'2026-04-03', total:189,  status:'paid',    items:'Mochila portabebés' },
+    { id:'PV-2026-1019', customer:'Carmen López',    date:'2026-04-02', total:279,  status:'pending', items:'Cuna colecho Chicco' },
+    { id:'PV-2026-1018', customer:'Marta Sánchez',   date:'2026-04-01', total:45,   status:'paid',    items:'Termómetro Braun' },
+  ],
+};
+
+// ── Fichaje demo data generator ─────────────────────────────────
+function _generateDemoFichajes() {
+  const f = [];
+  let id = 1;
+  const now = new Date();
+  DEMO_EMPLOYEES.forEach(emp => {
+    for (let d = 30; d >= 1; d--) {
+      const day = new Date(now);
+      day.setDate(day.getDate() - d);
+      const dow = day.getDay();
+      if (dow === 0) continue;
+      if (dow === 6 && emp.id !== 'e1' && emp.id !== 'e2') continue;
+      if (emp.id === 'e4' && dow >= 3 && dow <= 5) continue; // Rosa: Mon-Wed only
+      const dateStr = day.toISOString().split('T')[0];
+      const startH = emp.id === 'e3' ? 10 : 9;
+      const inMs = new Date(day); inMs.setHours(startH, Math.floor(Math.random()*12), 0, 0);
+      const outMs = new Date(inMs); outMs.setHours(startH + (dow===6?5:8), 20+Math.floor(Math.random()*15), 0, 0);
+      f.push({ id:'f'+id++, employee_id:emp.id, date:dateStr, in_ts:inMs.getTime(), out_ts:outMs.getTime(), hours:Math.round((outMs-inMs)/360000)/10, notes:'', modified_by:null });
+    }
+  });
+  // Today's open fichajes
+  const today = now.toISOString().split('T')[0];
+  if (now.getDay() !== 0) {
+    ['e1','e2'].forEach(eid => {
+      const inMs = new Date(now); inMs.setHours(9, Math.floor(Math.random()*10), 0, 0);
+      if (inMs < now) f.push({ id:'f'+id++, employee_id:eid, date:today, in_ts:inMs.getTime(), out_ts:null, hours:null, notes:'', modified_by:null });
+    });
+  }
+  return f;
+}
+
+function _generateDemoTurnos() {
+  const t = [];
+  let id = 1;
+  const now = new Date();
+  for (let d = -7; d <= 14; d++) {
+    const day = new Date(now);
+    day.setDate(day.getDate() + d);
+    const dow = day.getDay();
+    if (dow === 0) continue;
+    const dateStr = day.toISOString().split('T')[0];
+    const roster = dow === 6
+      ? [{ emp:'e1', start:'09:00', end:'14:00' }, { emp:'e2', start:'09:00', end:'14:00' }]
+      : [{ emp:'e1', start:'09:00', end:'17:00' }, { emp:'e2', start:'09:00', end:'17:00' }, { emp:'e3', start:'10:00', end:'18:00' }];
+    if (dow === 1 || dow === 3) roster.push({ emp:'e4', start:'09:00', end:'13:00' });
+    roster.forEach(r => t.push({ id:'t'+id++, employee_id:r.emp, date:dateStr, start:r.start, end:r.end, notes:'' }));
+  }
+  return t;
+}
+
+// ── Live array initializer ─────────────────────────────────────
+(function _initLiveArrays() {
+  function _loadInto(key, arr) {
+    const raw = localStorage.getItem(key);
+    if (raw) { try { const live = JSON.parse(raw); arr.length = 0; arr.push(...live); } catch(e){} }
+    else { localStorage.setItem(key, JSON.stringify(arr)); }
+  }
+  _loadInto(LIVE_PRODUCTS_KEY,  DEMO_PRODUCTS);
+  _loadInto(LIVE_CUSTOMERS_KEY, DEMO_CUSTOMERS);
+  _loadInto(LIVE_LISTS_KEY,     DEMO_BIRTH_LISTS);
+  _loadInto(LIVE_VOUCHERS_KEY,  DEMO_GIFT_VOUCHERS);
+  _loadInto(LIVE_SUPPLIERS_KEY, DEMO_SUPPLIERS);
+  // Fichajes
+  const rawF = localStorage.getItem(FICHAJES_KEY);
+  window._LIVE_FICHAJES = rawF ? JSON.parse(rawF) : _generateDemoFichajes();
+  if (!rawF) localStorage.setItem(FICHAJES_KEY, JSON.stringify(window._LIVE_FICHAJES));
+  // Turnos
+  const rawT = localStorage.getItem(TURNOS_KEY);
+  window._LIVE_TURNOS = rawT ? JSON.parse(rawT) : _generateDemoTurnos();
+  if (!rawT) localStorage.setItem(TURNOS_KEY, JSON.stringify(window._LIVE_TURNOS));
+})();
+
+// ── Internal save helper ────────────────────────────────────────
+function _saveArr(key, arr) { localStorage.setItem(key, JSON.stringify(arr)); }
+
+// ── Activity log ───────────────────────────────────────────────
+function logActivity(action, entity, name, user) {
+  const labels = { create:'creó', edit:'editó', delete:'eliminó', clock_in:'fichó entrada', clock_out:'fichó salida', stock:'ajustó stock de', send:'envió mensaje a' };
+  const session = (typeof getSession === 'function') ? getSession() : null;
+  const who = user || (session && session.email ? session.email.split('@')[0] : 'Sistema');
+  const entry = { id:Date.now().toString(36)+Math.random().toString(36).slice(2,5), action, entity, name, user:who, ts:Date.now(), text:`${who} ${labels[action]||action} ${entity} "${name}"` };
+  const log = getActivityLog();
+  log.unshift(entry);
+  if (log.length > 300) log.pop();
+  localStorage.setItem(ACTIVITY_LOG_KEY, JSON.stringify(log));
+  return entry;
+}
+function getActivityLog() {
+  try { return JSON.parse(localStorage.getItem(ACTIVITY_LOG_KEY)) || []; } catch { return []; }
+}
+
+// ── Products CRUD ──────────────────────────────────────────────
+function saveProduct(p) { const idx=DEMO_PRODUCTS.findIndex(x=>x.id===p.id); if(idx>=0)DEMO_PRODUCTS[idx]=p; else DEMO_PRODUCTS.push(p); _saveArr(LIVE_PRODUCTS_KEY,DEMO_PRODUCTS); logActivity(idx>=0?'edit':'create','producto',p.name); }
+function deleteProduct(id) { const p=getProduct(id); const idx=DEMO_PRODUCTS.findIndex(x=>x.id===id); if(idx>=0){DEMO_PRODUCTS.splice(idx,1);_saveArr(LIVE_PRODUCTS_KEY,DEMO_PRODUCTS);} if(p)logActivity('delete','producto',p.name); }
+
+// ── Customers CRUD ─────────────────────────────────────────────
+function saveCustomer(c) { const idx=DEMO_CUSTOMERS.findIndex(x=>x.id===c.id); if(idx>=0)DEMO_CUSTOMERS[idx]=c; else DEMO_CUSTOMERS.push(c); _saveArr(LIVE_CUSTOMERS_KEY,DEMO_CUSTOMERS); logActivity(idx>=0?'edit':'create','cliente',c.full_name); }
+function deleteCustomer(id) { const c=getCustomer(id); const idx=DEMO_CUSTOMERS.findIndex(x=>x.id===id); if(idx>=0){DEMO_CUSTOMERS.splice(idx,1);_saveArr(LIVE_CUSTOMERS_KEY,DEMO_CUSTOMERS);} if(c)logActivity('delete','cliente',c.full_name); }
+
+// ── Birth lists CRUD ───────────────────────────────────────────
+function saveBirthList(l) { const idx=DEMO_BIRTH_LISTS.findIndex(x=>x.id===l.id); if(idx>=0)DEMO_BIRTH_LISTS[idx]=l; else DEMO_BIRTH_LISTS.push(l); _saveArr(LIVE_LISTS_KEY,DEMO_BIRTH_LISTS); logActivity(idx>=0?'edit':'create','lista',l.baby_name+' '+l.surname); }
+function deleteBirthList(id) { const l=getBirthList(id); const idx=DEMO_BIRTH_LISTS.findIndex(x=>x.id===id); if(idx>=0){DEMO_BIRTH_LISTS.splice(idx,1);_saveArr(LIVE_LISTS_KEY,DEMO_BIRTH_LISTS);} if(l)logActivity('delete','lista',l.baby_name+' '+l.surname); }
+
+// ── Vouchers CRUD ──────────────────────────────────────────────
+function saveVoucher(v) { const idx=DEMO_GIFT_VOUCHERS.findIndex(x=>x.id===v.id); if(idx>=0)DEMO_GIFT_VOUCHERS[idx]=v; else DEMO_GIFT_VOUCHERS.push(v); _saveArr(LIVE_VOUCHERS_KEY,DEMO_GIFT_VOUCHERS); logActivity(idx>=0?'edit':'create','vale',v.code); }
+function deleteVoucher(id) { const v=getVoucher(id); const idx=DEMO_GIFT_VOUCHERS.findIndex(x=>x.id===id); if(idx>=0){DEMO_GIFT_VOUCHERS.splice(idx,1);_saveArr(LIVE_VOUCHERS_KEY,DEMO_GIFT_VOUCHERS);} if(v)logActivity('delete','vale',v.code); }
+
+// ── Suppliers CRUD ─────────────────────────────────────────────
+function saveSupplier(s) { const idx=DEMO_SUPPLIERS.findIndex(x=>x.id===s.id); if(idx>=0)DEMO_SUPPLIERS[idx]=s; else DEMO_SUPPLIERS.push(s); _saveArr(LIVE_SUPPLIERS_KEY,DEMO_SUPPLIERS); logActivity(idx>=0?'edit':'create','proveedor',s.name); }
+function deleteSupplier(id) { const s=getSupplier(id); const idx=DEMO_SUPPLIERS.findIndex(x=>x.id===id); if(idx>=0){DEMO_SUPPLIERS.splice(idx,1);_saveArr(LIVE_SUPPLIERS_KEY,DEMO_SUPPLIERS);} if(s)logActivity('delete','proveedor',s.name); }
+
+// ── Fichajes ───────────────────────────────────────────────────
+function getFichajes(empId) { const all=window._LIVE_FICHAJES||[]; return empId?all.filter(f=>f.employee_id===empId):all; }
+function getTurnos(empId)   { const all=window._LIVE_TURNOS||[];   return empId?all.filter(t=>t.employee_id===empId):all; }
+function clockIn(empId, notes) {
+  const f={id:'f'+Date.now(),employee_id:empId,date:new Date().toISOString().split('T')[0],in_ts:Date.now(),out_ts:null,hours:null,notes:notes||'',modified_by:null};
+  window._LIVE_FICHAJES.push(f); _saveArr(FICHAJES_KEY,window._LIVE_FICHAJES);
+  const emp=DEMO_EMPLOYEES.find(e=>e.id===empId); logActivity('clock_in','fichaje',emp?emp.name:empId); return f;
+}
+function clockOut(fichajeId, notes) {
+  const f=window._LIVE_FICHAJES.find(x=>x.id===fichajeId); if(!f)return null;
+  f.out_ts=Date.now(); f.hours=Math.round((f.out_ts-f.in_ts)/360000)/10; if(notes)f.notes=notes;
+  _saveArr(FICHAJES_KEY,window._LIVE_FICHAJES);
+  const emp=DEMO_EMPLOYEES.find(e=>e.id===f.employee_id); logActivity('clock_out','fichaje',emp?emp.name:f.employee_id); return f;
+}
+function saveFichaje(f) { const idx=window._LIVE_FICHAJES.findIndex(x=>x.id===f.id); if(idx>=0)window._LIVE_FICHAJES[idx]=f; else window._LIVE_FICHAJES.push(f); _saveArr(FICHAJES_KEY,window._LIVE_FICHAJES); logActivity('edit','fichaje',f.date); }
+function saveTurno(t) { const idx=window._LIVE_TURNOS.findIndex(x=>x.id===t.id); if(idx>=0)window._LIVE_TURNOS[idx]=t; else window._LIVE_TURNOS.push(t); _saveArr(TURNOS_KEY,window._LIVE_TURNOS); }
+function deleteTurno(id) { const idx=window._LIVE_TURNOS.findIndex(x=>x.id===id); if(idx>=0){window._LIVE_TURNOS.splice(idx,1);_saveArr(TURNOS_KEY,window._LIVE_TURNOS);} }
+
+// ── Reset demo data ────────────────────────────────────────────
+function resetAllDemoData() {
+  [LIVE_PRODUCTS_KEY,LIVE_CUSTOMERS_KEY,LIVE_LISTS_KEY,LIVE_VOUCHERS_KEY,LIVE_SUPPLIERS_KEY,
+   ACTIVITY_LOG_KEY,FICHAJES_KEY,TURNOS_KEY,DEMO_SEED_KEY,RESERVATIONS_KEY,NOTES_KEY,SETTINGS_KEY].forEach(k=>localStorage.removeItem(k));
+  location.reload();
+}
+
+// ── ID generator ───────────────────────────────────────────────
+function nextId(prefix, arr) {
+  const nums = arr.map(x=>parseInt((x.id||'').replace(prefix,''))).filter(n=>!isNaN(n));
+  return prefix + (nums.length ? Math.max(...nums)+1 : 1);
+}
+
+// ── Messages helpers ───────────────────────────────────────────
+function getMessages() { return DEMO_MESSAGES; }
+const AI_RESPONSES = [
+  'Hola! 👋 Gracias por contactar con Mamá Pato. Enseguida te atendemos.',
+  'Claro que sí, estaremos encantadas de ayudarte. ¿Me puedes dar más detalles?',
+  'Perfecto, lo apuntamos. ¿Hay algo más en lo que pueda ayudarte?',
+  '¡Genial! Te esperamos en tienda cuando quieras 🐥',
+  'Por supuesto. Puedes pasarte por la tienda de lunes a sábado en horario de 9:00 a 14:00 y 16:00 a 20:00.',
+  'Ese producto está disponible tanto en tienda como en nuestra web. ¿Prefieres reservarlo?',
+];
+function getAIResponse(text) {
+  const lc = (text||'').toLowerCase();
+  if (lc.includes('precio') || lc.includes('cuánto')) return 'El precio actual es el indicado en nuestra web. ¿Quieres que te reserve una unidad?';
+  if (lc.includes('horario') || lc.includes('hora')) return 'Nuestro horario es L-V de 9:30 a 13:30 y 16:30 a 20:00, y sábados de 9:30 a 13:30. ¡Te esperamos! 🐥';
+  if (lc.includes('lista') || lc.includes('nacimiento')) return 'Las listas de nacimiento son gratuitas y se pueden crear desde nuestra web o directamente en tienda. ¡Es muy fácil! 🎀';
+  if (lc.includes('stock') || lc.includes('disponible') || lc.includes('quedan')) return 'Ahora mismo comprobamos el stock. Puedes consultar disponibilidad en tiempo real en nuestra web o llamarnos al 964 000 000.';
+  if (lc.includes('envío') || lc.includes('entrega')) return 'Hacemos envíos a toda España en 24-48h a partir de 3 artículos. Envío gratis para pedidos superiores a 150€.';
+  return AI_RESPONSES[Math.floor(Math.random()*AI_RESPONSES.length)];
+}

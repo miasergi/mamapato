@@ -52,6 +52,22 @@ function renderProductsDashboard(root) {
             ? `<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">${ICON.check(11)} Web</span>`
             : `<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-gray-100 text-gray-400">— Web</span>`}
         </td>
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-1.5">
+            <button onclick="openStockModal(getProduct('${p.id}'), ()=>{ renderProductsDashboard('${root}'); })"
+              class="text-xs px-2 py-1 rounded-lg bg-duck-50 text-duck-700 hover:bg-duck-100 font-medium transition-colors whitespace-nowrap">
+              ${ICON.refresh(12)} Stock
+            </button>
+            <button onclick="openProductModal(getProduct('${p.id}'), ()=>{ renderProductsDashboard('${root}'); })"
+              class="text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition-colors">
+              Editar
+            </button>
+            <button onclick="confirmDeleteProduct('${p.id}', '${root}')"
+              class="text-xs px-2 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition-colors">
+              Eliminar
+            </button>
+          </div>
+        </td>
       </tr>`;
     }).join('');
   }
@@ -86,7 +102,10 @@ function renderProductsDashboard(root) {
     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
         <span id="prod-count" class="text-sm text-gray-500"></span>
-        <a href="${root}dashboard/sync/index.html" class="text-xs text-duck-600 hover:underline font-medium">${ICON.refresh(12)} Sincronizar con Ontario</a>
+        <div class="flex items-center gap-3">
+          <button onclick="openProductModal(null, ()=>{ renderProductsDashboard('${root}'); })" class="btn-duck text-sm">${ICON.plus(14)} Nuevo producto</button>
+          <a href="${root}dashboard/sync/index.html" class="text-xs text-duck-600 hover:underline font-medium">${ICON.refresh(12)} Sincronizar</a>
+        </div>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full">
@@ -97,6 +116,7 @@ function renderProductsDashboard(root) {
               <th class="px-4 py-3 text-left">Stock</th>
               <th class="px-4 py-3 text-left">Estado</th>
               <th class="px-4 py-3 text-left">Visible web</th>
+              <th class="px-4 py-3 text-left">Acciones</th>
             </tr>
           </thead>
           <tbody id="prod-tbody"></tbody>
@@ -108,6 +128,13 @@ function renderProductsDashboard(root) {
   document.getElementById('prod-search').addEventListener('input',  e => { search = e.target.value; renderTable(); });
   document.getElementById('prod-cat').addEventListener('change',    e => { catFilter = e.target.value; renderTable(); });
   document.getElementById('prod-status').addEventListener('change', e => { statusFilter = e.target.value; renderTable(); });
+
+  window.confirmDeleteProduct = function(id, rt) {
+    const p = getProduct(id); if (!p) return;
+    openConfirmModal('Eliminar producto', `¿Seguro que quieres eliminar <strong>${p.name}</strong>? Esta acción no se puede deshacer.`, () => {
+      deleteProduct(id); showToast('Producto eliminado'); renderProductsDashboard(rt);
+    });
+  };
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -183,22 +183,29 @@ function renderDashboard(root, active) {
   const email = getCurrentUserEmail() || 'admin@mamapato.es';
   const lowStock = typeof hasLowStock === 'function' && hasLowStock();
 
+  const unreadCount = typeof DEMO_MESSAGES !== 'undefined' ? DEMO_MESSAGES.filter(m=>m.unread).length : 0;
+  const actLog = typeof getActivityLog === 'function' ? getActivityLog().length : 0;
+
   const items = [
-    { key:'home',      icon: ICON.chart(20),    label:'Inicio',            href: root + 'dashboard/index.html' },
-    { key:'lists',     icon: ICON.baby(20),     label:'Listas nacimiento', href: root + 'dashboard/birth-lists/index.html' },
-    { key:'customers', icon: ICON.users(20),    label:'Clientes',          href: root + 'dashboard/customers/index.html' },
-    { key:'vouchers',  icon: ICON.gift(20),     label:'Vales regalo',      href: root + 'dashboard/vouchers/index.html' },
-    { key:'products',   icon: ICON.box(20),      label:'Productos',          href: root + 'dashboard/products/index.html', badge: lowStock },
-    { key:'suppliers',  icon: ICON.users(20),    label:'Proveedores',        href: root + 'dashboard/suppliers/index.html' },
-    { key:'sync',       icon: ICON.refresh(20),  label:'Importar Ontario',   href: root + 'dashboard/sync/index.html' },
-    { key:'settings',   icon: ICON.settings(20), label:'Configuración',      href: root + 'dashboard/settings/index.html' },
+    { key:'home',      icon: ICON.chart(20),    label:'Inicio',             href: root + 'dashboard/index.html' },
+    { key:'lists',     icon: ICON.baby(20),     label:'Listas nacimiento',  href: root + 'dashboard/birth-lists/index.html' },
+    { key:'customers', icon: ICON.users(20),    label:'Clientes',           href: root + 'dashboard/customers/index.html' },
+    { key:'vouchers',  icon: ICON.gift(20),     label:'Vales regalo',       href: root + 'dashboard/vouchers/index.html' },
+    { key:'products',  icon: ICON.box(20),      label:'Productos',          href: root + 'dashboard/products/index.html', badge: lowStock ? '!' : null },
+    { key:'suppliers', icon: ICON.users(20),    label:'Proveedores',        href: root + 'dashboard/suppliers/index.html' },
+    { key:'ontario',   icon: ICON.chart(20),    label:'Ontario ERP',        href: root + 'dashboard/ontario/index.html' },
+    { key:'mensajes',  icon: ICON.chat(20),     label:'Mensajes',           href: root + 'dashboard/mensajes/index.html', badge: unreadCount > 0 ? unreadCount : null },
+    { key:'fichajes',  icon: ICON.check(20),    label:'Fichajes',           href: root + 'dashboard/fichajes/index.html' },
+    { key:'actividad', icon: ICON.note(20),     label:'Actividad',          href: root + 'dashboard/actividad/index.html', badge: actLog > 0 ? null : null },
+    { key:'sync',      icon: ICON.refresh(20),  label:'Importar Ontario',   href: root + 'dashboard/sync/index.html' },
+    { key:'settings',  icon: ICON.settings(20), label:'Configuración',      href: root + 'dashboard/settings/index.html' },
   ];
 
   const navLinks = items.map(i =>
     `<a href="${i.href}" class="sidebar-link ${active === i.key ? 'active' : ''}">
        <span class="flex-shrink-0">${i.icon}</span>
        <span class="flex-1">${i.label}</span>
-       ${i.badge ? '<span class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span>' : ''}
+       ${i.badge ? `<span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-xs font-bold rounded-full bg-red-500 text-white">${i.badge === '!' ? '!' : i.badge}</span>` : ''}
      </a>`
   ).join('');
 
@@ -328,3 +335,337 @@ function renderGlobalSearchDropdown(q, root) {
   dd.innerHTML = html;
   dd.classList.remove('hidden');
 }
+
+// =============================================================
+//  MODAL SYSTEM
+// =============================================================
+
+function openModal(opts) {
+  // opts: { title, html, size, confirmLabel, confirmClass, cancelLabel, onConfirm }
+  let overlay = document.getElementById('mp-modal-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'mp-modal-overlay';
+    document.body.appendChild(overlay);
+  }
+  overlay.className = 'fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4';
+  overlay.onclick = function(e) { if (e.target === overlay) closeModal(); };
+
+  const maxW = opts.size === 'lg' ? 'max-w-2xl' : opts.size === 'sm' ? 'max-w-sm' : 'max-w-lg';
+  const footer = opts.onConfirm
+    ? `<div class="flex gap-3 justify-end px-6 pb-6 pt-1">
+        <button onclick="closeModal()" class="btn-outline-duck">${opts.cancelLabel||'Cancelar'}</button>
+        <button id="modal-confirm-btn" class="btn-duck ${opts.confirmClass||''}">${opts.confirmLabel||'Guardar'}</button>
+       </div>` : '';
+
+  overlay.innerHTML = `
+    <div class="bg-white rounded-2xl shadow-2xl w-full ${maxW} max-h-[92vh] overflow-y-auto flex flex-col" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+        <h2 class="text-lg font-bold text-gray-900">${opts.title||''}</h2>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="px-6 py-5 flex-1">${opts.html||''}</div>
+      ${footer}
+    </div>`;
+
+  document.body.style.overflow = 'hidden';
+  if (opts.onConfirm) {
+    const btn = document.getElementById('modal-confirm-btn');
+    if (btn) btn.onclick = function() { const r = opts.onConfirm(); if (r !== false) closeModal(); };
+  }
+}
+
+function openConfirmModal(title, message, onConfirm, confirmLabel, confirmClass) {
+  openModal({
+    title,
+    html: `<p class="text-gray-600">${message}</p>`,
+    confirmLabel: confirmLabel || 'Confirmar',
+    confirmClass: confirmClass || 'bg-red-600 hover:bg-red-700',
+    cancelLabel: 'Cancelar',
+    onConfirm,
+  });
+}
+
+function closeModal() {
+  const overlay = document.getElementById('mp-modal-overlay');
+  if (overlay) { overlay.classList.add('hidden'); overlay.innerHTML = ''; }
+  document.body.style.overflow = '';
+}
+
+function showToast(msg, type) {
+  let t = document.getElementById('mp-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'mp-toast'; document.body.appendChild(t); }
+  const colors = { success:'bg-green-600', error:'bg-red-600', info:'bg-duck-600', warning:'bg-amber-500' };
+  t.className = `fixed bottom-5 right-5 z-[300] ${colors[type||'success']||colors.success} text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all`;
+  t.innerHTML = `${ICON.check(16)} ${msg}`;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; setTimeout(()=>{t.innerHTML='';},400); }, 3000);
+}
+
+// =============================================================
+//  SHARED FORM FIELD BUILDER
+// =============================================================
+
+function _field(label, name, value, type, opts) {
+  type = type || 'text';
+  opts = opts || {};
+  const cls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-duck-400';
+  if (type === 'select') {
+    const options = (opts.options||[]).map(o => {
+      const val = typeof o === 'object' ? o.value : o;
+      const lbl = typeof o === 'object' ? o.label : o;
+      return `<option value="${val}" ${String(value)===String(val)?'selected':''}>${lbl}</option>`;
+    }).join('');
+    return `<div class="${opts.half?'':''}"><label class="label">${label}</label><select name="${name}" class="${cls} bg-white">${options}</select></div>`;
+  }
+  if (type === 'textarea') {
+    return `<div><label class="label">${label}</label><textarea name="${name}" rows="${opts.rows||3}" class="${cls}">${value||''}</textarea></div>`;
+  }
+  return `<div${opts.half?' class="flex-1"':''}><label class="label">${label}</label><input type="${type}" name="${name}" value="${(value||'').toString().replace(/"/g,'&quot;')}" class="${cls}" ${opts.placeholder?`placeholder="${opts.placeholder}"`:''}></div>`;
+}
+
+function _formData(formId) {
+  const f = document.getElementById(formId);
+  if (!f) return {};
+  const fd = new FormData(f);
+  const obj = {};
+  for (const [k,v] of fd.entries()) obj[k] = v;
+  // Also pick up unchecked checkboxes
+  f.querySelectorAll('input[type=checkbox]').forEach(cb => { if (!obj[cb.name]) obj[cb.name] = ''; });
+  return obj;
+}
+
+// =============================================================
+//  PRODUCT CRUD FORMS
+// =============================================================
+
+function openProductModal(p, onSaved) {
+  const isNew = !p;
+  p = p || {};
+  const catOpts = CATEGORIES.map(c => ({ value:c, label:c }));
+  const supplierOpts = [{ value:'', label:'Sin proveedor' }, ...DEMO_SUPPLIERS.map(s => ({ value:s.id, label:s.name }))];
+  const statusOpts = [
+    { value:'active', label:'Activo (visible en web)' },
+    { value:'inactive', label:'Inactivo' },
+    { value:'pending_order', label:'Pedido pendiente' },
+    { value:'apartado', label:'Apartado' },
+  ];
+  openModal({
+    title: isNew ? 'Nuevo producto' : 'Editar producto',
+    size: 'lg',
+    confirmLabel: isNew ? 'Crear producto' : 'Guardar cambios',
+    html: `
+      <form id="prod-form" class="space-y-4">
+        <div class="flex gap-3">
+          ${_field('Nombre','name',p.name,'text',{half:true})}
+          ${_field('SKU','sku',p.sku,'text',{half:true})}
+        </div>
+        <div class="flex gap-3">
+          ${_field('Precio (€)','price',p.price,'number',{half:true})}
+          ${_field('Categoría','category',p.category,'select',{options:catOpts})}
+        </div>
+        <div class="flex gap-3">
+          ${_field('Stock web','stock_web',p.stock_web,'number',{half:true})}
+          ${_field('Stock tienda','stock_store',p.stock_store,'number',{half:true})}
+        </div>
+        ${_field('Estado','status',p.status||'active','select',{options:statusOpts})}
+        ${_field('Proveedor','supplier_id',p.supplier_id,'select',{options:supplierOpts})}
+        ${_field('Slug (URL)','slug',p.slug||'','text',{placeholder:'nombre-producto-pX'})}
+        ${_field('Descripción','description',p.description,'textarea',{rows:3})}
+      </form>`,
+    onConfirm: () => {
+      const d = _formData('prod-form');
+      if (!d.name || !d.sku) { showToast('Nombre y SKU son obligatorios','error'); return false; }
+      const updated = { ...p, ...d, price:parseFloat(d.price)||0, stock_web:parseInt(d.stock_web)||0, stock_store:parseInt(d.stock_store)||0, id: p.id || nextId('p', DEMO_PRODUCTS), slug: d.slug || d.name.toLowerCase().replace(/[^a-z0-9]+/g,'-') };
+      saveProduct(updated);
+      showToast(isNew ? 'Producto creado ✓' : 'Producto guardado ✓');
+      if (onSaved) onSaved(updated);
+    }
+  });
+}
+
+// =============================================================
+//  CUSTOMER CRUD FORMS
+// =============================================================
+
+function openCustomerModal(c, onSaved) {
+  const isNew = !c;
+  c = c || {};
+  const channelOpts = [{ value:'whatsapp', label:'WhatsApp' },{ value:'phone', label:'Teléfono' },{ value:'store', label:'Tienda' },{ value:'email', label:'Email' }];
+  openModal({
+    title: isNew ? 'Nuevo cliente' : 'Editar cliente',
+    size: 'lg',
+    confirmLabel: isNew ? 'Crear cliente' : 'Guardar cambios',
+    html: `
+      <form id="cust-form" class="space-y-4">
+        ${_field('Nombre completo','full_name',c.full_name)}
+        <div class="flex gap-3">
+          ${_field('Teléfono','phone',c.phone,'text',{half:true})}
+          ${_field('Email','email',c.email,'email',{half:true})}
+        </div>
+        ${_field('Canal de contacto preferido','contact_channel',c.contact_channel||'whatsapp','select',{options:channelOpts})}
+        ${_field('Notas','note',c.note,'textarea',{rows:3})}
+      </form>`,
+    onConfirm: () => {
+      const d = _formData('cust-form');
+      if (!d.full_name) { showToast('El nombre es obligatorio','error'); return false; }
+      const updated = { ...c, ...d, id: c.id || nextId('c', DEMO_CUSTOMERS), created_at: c.created_at || new Date().toISOString().split('T')[0] };
+      saveCustomer(updated);
+      showToast(isNew ? 'Cliente creado ✓' : 'Cliente guardado ✓');
+      if (onSaved) onSaved(updated);
+    }
+  });
+}
+
+// =============================================================
+//  SUPPLIER CRUD FORMS
+// =============================================================
+
+function openSupplierModal(s, onSaved) {
+  const isNew = !s;
+  s = s || {};
+  openModal({
+    title: isNew ? 'Nuevo proveedor' : 'Editar proveedor',
+    size: 'lg',
+    confirmLabel: isNew ? 'Crear proveedor' : 'Guardar cambios',
+    html: `
+      <form id="sup-form" class="space-y-4">
+        ${_field('Nombre empresa','name',s.name)}
+        <div class="flex gap-3">
+          ${_field('País','country',s.country,'text',{half:true})}
+          ${_field('Plazo entrega (días)','lead_days',s.lead_days,'number',{half:true})}
+        </div>
+        <div class="flex gap-3">
+          ${_field('Representante','rep',s.rep,'text',{half:true})}
+          ${_field('Email','email',s.email,'email',{half:true})}
+        </div>
+        ${_field('Teléfono','phone',s.phone)}
+        ${_field('Marcas (separadas por coma)','brands_str',(s.brands||[]).join(', '),'text',{placeholder:'Bugaboo, BabyBjörn'})}
+        ${_field('Notas internas','notes',s.notes,'textarea',{rows:3})}
+      </form>`,
+    onConfirm: () => {
+      const d = _formData('sup-form');
+      if (!d.name) { showToast('El nombre es obligatorio','error'); return false; }
+      const updated = { ...s, ...d, lead_days: parseInt(d.lead_days)||0, brands: d.brands_str ? d.brands_str.split(',').map(b=>b.trim()).filter(Boolean) : [], id: s.id || nextId('s', DEMO_SUPPLIERS) };
+      delete updated.brands_str;
+      saveSupplier(updated);
+      showToast(isNew ? 'Proveedor creado ✓' : 'Proveedor guardado ✓');
+      if (onSaved) onSaved(updated);
+    }
+  });
+}
+
+// =============================================================
+//  VOUCHER CRUD FORMS
+// =============================================================
+
+function openVoucherModal(v, onSaved) {
+  const isNew = !v;
+  v = v || {};
+  const statusOpts = [{ value:'active', label:'Activo' },{ value:'exhausted', label:'Agotado' },{ value:'expired', label:'Caducado' }];
+  const custOpts = [{ value:'', label:'Sin asignar' }, ...DEMO_CUSTOMERS.map(c => ({ value:c.id, label:c.full_name }))];
+  openModal({
+    title: isNew ? 'Emitir nuevo vale' : 'Editar vale',
+    size: 'lg',
+    confirmLabel: isNew ? 'Emitir vale' : 'Guardar cambios',
+    html: `
+      <form id="v-form" class="space-y-4">
+        <div class="flex gap-3">
+          ${_field('Código','code',v.code || 'MP-'+new Date().getFullYear()+'-'+(String(DEMO_GIFT_VOUCHERS.length+1).padStart(3,'0')),'text',{half:true})}
+          ${_field('Estado','status',v.status||'active','select',{options:statusOpts})}
+        </div>
+        <div class="flex gap-3">
+          ${_field('Valor total (€)','amount',v.amount,'number',{half:true})}
+          ${_field('Saldo restante (€)','remaining',v.remaining!==undefined?v.remaining:v.amount,'number',{half:true})}
+        </div>
+        ${_field('Asignar a cliente','customer_id',v.customer_id,'select',{options:custOpts})}
+        ${_field('Fecha caducidad','expires_at',v.expires_at,'date')}
+        ${_field('Notas','note',v.note,'textarea',{rows:2})}
+      </form>`,
+    onConfirm: () => {
+      const d = _formData('v-form');
+      if (!d.code) { showToast('El código es obligatorio','error'); return false; }
+      const updated = { ...v, ...d, amount:parseFloat(d.amount)||0, remaining:parseFloat(d.remaining)||0, id: v.id || nextId('v', DEMO_GIFT_VOUCHERS), created_at: v.created_at || new Date().toISOString().split('T')[0] };
+      if (!updated.customer_id) updated.customer_id = null;
+      saveVoucher(updated);
+      showToast(isNew ? 'Vale emitido ✓' : 'Vale guardado ✓');
+      if (onSaved) onSaved(updated);
+    }
+  });
+}
+
+// =============================================================
+//  BIRTH LIST CRUD FORMS
+// =============================================================
+
+function openBirthListModal(l, onSaved) {
+  const isNew = !l;
+  l = l || {};
+  const statusOpts = [{ value:'active', label:'Activa' },{ value:'draft', label:'Borrador' },{ value:'closed', label:'Cerrada' }];
+  const custOpts = [{ value:'', label:'— Sin asignar —' }, ...DEMO_CUSTOMERS.map(c => ({ value:c.id, label:c.full_name }))];
+  openModal({
+    title: isNew ? 'Nueva lista de nacimiento' : 'Editar lista',
+    size: 'lg',
+    confirmLabel: isNew ? 'Crear lista' : 'Guardar cambios',
+    html: `
+      <form id="list-form" class="space-y-4">
+        <div class="flex gap-3">
+          ${_field('Nombre del bebé','baby_name',l.baby_name,'text',{half:true})}
+          ${_field('Apellido','surname',l.surname,'text',{half:true})}
+        </div>
+        <div class="flex gap-3">
+          ${_field('Fecha prevista de parto','birth_date',l.birth_date,'date',{half:true})}
+          ${_field('Estado','status',l.status||'draft','select',{options:statusOpts})}
+        </div>
+        ${_field('Mamá','mother_id',l.mother_id,'select',{options:custOpts})}
+        ${_field('Papá (opcional)','father_id',l.father_id,'select',{options:custOpts})}
+        ${_field('Slug (URL pública)','slug',l.slug,'text',{placeholder:'nombre-apellido-año'})}
+      </form>`,
+    onConfirm: () => {
+      const d = _formData('list-form');
+      if (!d.baby_name || !d.surname) { showToast('Nombre y apellido del bebé son obligatorios','error'); return false; }
+      const updated = { ...l, ...d, id: l.id || nextId('', DEMO_BIRTH_LISTS), items: l.items || [], mother_id: d.mother_id || null, father_id: d.father_id || null, slug: d.slug || (d.baby_name+'-'+d.surname+'-'+new Date().getFullYear()).toLowerCase().replace(/[^a-z0-9]+/g,'-') };
+      saveBirthList(updated);
+      showToast(isNew ? 'Lista creada ✓' : 'Lista guardada ✓');
+      if (onSaved) onSaved(updated);
+    }
+  });
+}
+
+// =============================================================
+//  STOCK ADJUSTMENT MODAL
+// =============================================================
+
+function openStockModal(p, onSaved) {
+  if (!p) return;
+  openModal({
+    title: `Ajustar stock — ${p.name}`,
+    size: 'sm',
+    confirmLabel: 'Aplicar ajuste',
+    html: `
+      <div class="mb-4 bg-gray-50 rounded-xl p-3 flex gap-4 text-center">
+        <div class="flex-1"><div class="text-xl font-bold text-gray-900">${p.stock_web}</div><div class="text-xs text-gray-500">Stock web</div></div>
+        <div class="flex-1"><div class="text-xl font-bold text-gray-900">${p.stock_store}</div><div class="text-xs text-gray-500">Stock tienda</div></div>
+        <div class="flex-1"><div class="text-xl font-bold text-duck-600">${p.stock_web+p.stock_store}</div><div class="text-xs text-gray-500">Total</div></div>
+      </div>
+      <form id="stock-form" class="space-y-3">
+        <div class="flex gap-3">
+          ${_field('Nuevo stock web','stock_web',p.stock_web,'number',{half:true})}
+          ${_field('Nuevo stock tienda','stock_store',p.stock_store,'number',{half:true})}
+        </div>
+        ${_field('Motivo del ajuste','reason','','text',{placeholder:'Recepción pedido, corrección, etc.'})}
+      </form>`,
+    onConfirm: () => {
+      const d = _formData('stock-form');
+      const updated = { ...p, stock_web:parseInt(d.stock_web)||0, stock_store:parseInt(d.stock_store)||0 };
+      saveProduct(updated);
+      logActivity('stock', 'producto', p.name + (d.reason ? ' — '+d.reason : ''));
+      showToast('Stock actualizado ✓');
+      if (onSaved) onSaved(updated);
+    }
+  });
+}
+

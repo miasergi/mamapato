@@ -54,7 +54,12 @@ function renderVouchersIndex(root) {
           <td class="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">${formatDate(v.expires_at)}</td>
           <td class="px-4 py-3"><span class="badge ${voucherStatusClass(v.status)}">${voucherStatusLabel(v.status)}</span></td>
           <td class="px-4 py-3">
-            <a href="${root}dashboard/vouchers/${v.id}/index.html" class="text-sm text-duck-600 hover:underline font-medium">Ver</a>
+            <div class="flex gap-1.5">
+              <button onclick="openVoucherModal(getVoucher('${v.id}'), ()=>renderVouchersIndex('${root}'))"
+                class="text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium">Editar</button>
+              <button onclick="_confirmDeleteVoucher('${v.id}','${root}')"
+                class="text-xs px-2 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium">Eliminar</button>
+            </div>
           </td>
         </tr>`;
     }).join('');
@@ -85,7 +90,7 @@ function renderVouchersIndex(root) {
         <option value="exhausted">Agotados</option>
         <option value="expired">Caducados</option>
       </select>
-      <a href="${root}dashboard/vouchers/new/index.html" class="btn-duck whitespace-nowrap">${ICON.plus(16)} Emitir vale</a>
+      <button onclick="openVoucherModal(null, ()=>renderVouchersIndex('${root}'))" class="btn-duck whitespace-nowrap">${ICON.plus(16)} Emitir vale</button>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <div class="px-4 py-3 border-b border-gray-100">
@@ -101,7 +106,7 @@ function renderVouchersIndex(root) {
               <th class="px-4 py-3 text-left">Saldo</th>
               <th class="px-4 py-3 text-left">Caduca</th>
               <th class="px-4 py-3 text-left">Estado</th>
-              <th class="px-4 py-3"></th>
+              <th class="px-4 py-3 text-left">Acciones</th>
             </tr>
           </thead>
           <tbody id="v-tbody"></tbody>
@@ -112,6 +117,12 @@ function renderVouchersIndex(root) {
   renderTable();
   document.getElementById('v-search').addEventListener('input', e => { search = e.target.value; renderTable(); });
   document.getElementById('v-filter').addEventListener('change', e => { filter = e.target.value; renderTable(); });
+  window._confirmDeleteVoucher = function(id, rt) {
+    const v = getVoucher(id); if (!v) return;
+    openConfirmModal('Eliminar vale', `¿Seguro que quieres eliminar el vale <strong>${v.code}</strong>?`, () => {
+      deleteVoucher(id); showToast('Vale eliminado'); renderVouchersIndex(rt);
+    });
+  };
 }
 
 // ─────────────────────────────────────────────────────────────

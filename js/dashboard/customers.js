@@ -65,7 +65,12 @@ function renderCustomersIndex(root) {
             </div>
           </td>
           <td class="px-4 py-3">
-            <a href="${root}dashboard/customers/${c.id}/index.html" class="text-sm text-duck-600 hover:underline font-medium">Ver</a>
+            <div class="flex gap-1.5">
+              <button onclick="openCustomerModal(getCustomer('${c.id}'), ()=>renderCustomersIndex('${root}'))"
+                class="text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium">Editar</button>
+              <button onclick="_confirmDeleteCustomer('${c.id}','${root}')"
+                class="text-xs px-2 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium">Eliminar</button>
+            </div>
           </td>
         </tr>`;
     }).join('');
@@ -105,7 +110,7 @@ function renderCustomersIndex(root) {
         <input type="text" id="cust-search" placeholder="Buscar cliente…"
           class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-duck-400">
         <button onclick="exportCustomersCSV()" class="btn-outline-duck text-sm whitespace-nowrap">${ICON.download(14)} Exportar CSV</button>
-        <a href="${root}dashboard/customers/new/index.html" class="btn-duck whitespace-nowrap">${ICON.plus(16)} Nuevo</a>
+        <button onclick="openCustomerModal(null, ()=>renderCustomersIndex('${root}'))" class="btn-duck whitespace-nowrap">${ICON.plus(16)} Nuevo cliente</button>
       </div>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -120,7 +125,7 @@ function renderCustomersIndex(root) {
               <th class="px-4 py-3 text-left">Teléfono</th>
               <th class="px-4 py-3 text-left">Email</th>
               <th class="px-4 py-3 text-left">Actividad</th>
-              <th class="px-4 py-3"></th>
+              <th class="px-4 py-3 text-left">Acciones</th>
             </tr>
           </thead>
           <tbody id="cust-tbody"></tbody>
@@ -131,6 +136,12 @@ function renderCustomersIndex(root) {
   // Expose functions to global scope for onclick handlers
   window.setFilter = function(f) { filter = f; renderTable(); };
   window.exportCustomersCSV = exportCustomersCSV;
+  window._confirmDeleteCustomer = function(id, rt) {
+    const c = getCustomer(id); if (!c) return;
+    openConfirmModal('Eliminar cliente', `¿Seguro que quieres eliminar a <strong>${c.full_name}</strong>?`, () => {
+      deleteCustomer(id); showToast('Cliente eliminado'); renderCustomersIndex(rt);
+    });
+  };
 
   renderTable();
   document.getElementById('cust-search').addEventListener('input', e => { search = e.target.value; renderTable(); });
