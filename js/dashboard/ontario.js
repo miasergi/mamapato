@@ -141,7 +141,10 @@ function renderOntarioPage(root) {
           <h3 class="font-bold text-gray-900">Facturas pendientes de pago</h3>
         </div>
         <div class="divide-y divide-gray-50">
-          ${data.invoicesPending.map(inv => {
+          ${(() => {
+            const pending = data.invoicesPending.filter(i => i.status !== 'paid');
+            if (!pending.length) return `<p class="px-6 py-6 text-center text-sm text-gray-400">No hay facturas pendientes de pago.</p>`;
+            return pending.map(inv => {
             const isOverdue = inv.status === 'overdue';
             const daysLeft = Math.ceil((new Date(inv.due)-new Date())/86400000);
             return `
@@ -157,16 +160,18 @@ function renderOntarioPage(root) {
                 </div>
               </div>
               <div class="ml-4">
-                <button onclick="markInvoicePaid('${inv.id}')" class="text-xs px-2.5 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg font-medium transition-colors">
-                  Marcar pagada
-                </button>
+                ${inv.status === 'paid'
+                  ? `<span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700">${ICON.check(12)} Pagada</span>`
+                  : `<button onclick="markInvoicePaid('${inv.id}')" class="text-xs px-2.5 py-1 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded-lg font-medium transition-colors">Marcar pagada</button>`
+                }
               </div>
             </div>`;
-          }).join('')}
+          }).join('') + `
           <div class="px-6 py-3 bg-gray-50 flex items-center justify-between">
             <span class="text-sm font-semibold text-gray-700">Total pendiente</span>
-            <span class="text-sm font-bold text-gray-900">${formatPrice(data.invoicesPending.reduce((s,i)=>s+i.amount,0))}</span>
-          </div>
+            <span class="text-sm font-bold text-gray-900">${formatPrice(pending.reduce((s,i)=>s+i.amount,0))}</span>
+          </div>`;
+          })()}
         </div>
       </div>
     </div>

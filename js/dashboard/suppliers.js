@@ -26,7 +26,7 @@ function renderSuppliersIndex(root) {
         </td>
         <td class="px-5 py-4 text-right">
           <div class="flex gap-1.5 justify-end">
-            <button onclick="openSupplierModal(getSupplier('${s.id}'), ()=>renderSuppliersIndex('${root}'))" onclick="event.stopPropagation()"
+            <button onclick="event.stopPropagation();openSupplierModal(getSupplier('${s.id}'), ()=>renderSuppliersIndex('${root}'))"
               class="btn-outline-duck text-xs py-1.5">Editar</button>
             <button onclick="event.stopPropagation();_confirmDeleteSupplier('${s.id}','${root}')"
               class="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium border border-red-200">Eliminar</button>

@@ -178,7 +178,7 @@ function renderFichajesPage(root) {
                 <div class="bg-gray-50 rounded-xl p-2"><div class="text-lg font-bold text-gray-700">${thisMonth}h</div><div class="text-xs text-gray-500">Este mes</div></div>
               </div>
               <div class="mt-3 text-xs text-center text-gray-400">Jornada pactada: ${emp.weekly_hours}h/sem</div>
-              <button onclick="exportEmployeeReport('${emp.id}')" class="mt-3 w-full text-xs btn-outline-duck py-1.5">${ICON.download(12)} Informe PDF/CSV</button>
+              <button onclick="exportEmployeeReport('${emp.id}')" class="mt-3 w-full text-xs btn-outline-duck py-1.5">${ICON.download(12)} Exportar CSV</button>
             </div>`;
           }).join('')}
         </div>

@@ -134,6 +134,7 @@ function renderActividadPage(root) {
   };
   window.exportActivityLog = function() {
     const rows = getActivityLog().map(e => ({ fecha:new Date(e.ts).toLocaleString('es-ES'), accion:e.action, seccion:e.entity, elemento:e.name, usuario:e.user||'Sistema' }));
+    if (!rows.length) { showToast('No hay actividad para exportar', 'info'); return; }
     exportCSV(rows, 'actividad-mamapato.csv');
     showToast('Log exportado ✓');
   };
