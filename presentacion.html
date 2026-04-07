@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mamá Pato · Presentación</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --duck:   #2596be;
+    --duck-d: #1e7da3;
+    --duck-l: #eef7fb;
+    --duck-ll: #f0f9fd;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; overflow:hidden; font-family:'Inter',sans-serif; background:#0f172a; }
+
+  /* ── Slide container ── */
+  .deck { width:100%; height:100%; position:relative; }
+  .slide {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    padding:60px 80px;
+    opacity:0; pointer-events:none;
+    transition:opacity .45s ease, transform .45s ease;
+    transform:translateX(40px);
+  }
+  .slide.active   { opacity:1; pointer-events:all; transform:translateX(0); }
+  .slide.exit-left { opacity:0; transform:translateX(-40px); transition:opacity .3s ease, transform .3s ease; }
+
+  /* ── Slide themes ── */
+  .slide-cover    { background:linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e7da3 100%); color:#fff; }
+  .slide-light    { background:#fff; color:#111827; }
+  .slide-duck     { background:linear-gradient(135deg, var(--duck-d) 0%, var(--duck) 100%); color:#fff; }
+  .slide-gray     { background:#f8fafc; color:#111827; }
+  .slide-dark     { background:#111827; color:#fff; }
+
+  /* ── Nav buttons ── */
+  .nav-btn {
+    position:fixed; top:50%; transform:translateY(-50%);
+    width:48px; height:48px; border-radius:50%;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2);
+    color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .2s; z-index:100; backdrop-filter:blur(4px);
+  }
+  .nav-btn:hover { background:rgba(255,255,255,.25); }
+  .nav-btn.prev { left:20px; }
+  .nav-btn.next { right:20px; }
+  .nav-btn.hide { opacity:0; pointer-events:none; }
+  /* adapt color for light slides */
+  .slide-light ~ .nav-wrap .nav-btn,
+  .slide-gray  ~ .nav-wrap .nav-btn { background:rgba(0,0,0,.07); border-color:rgba(0,0,0,.12); color:#374151; }
+
+  /* ── Progress dots ── */
+  .dots {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    display:flex; gap:8px; z-index:100;
+  }
+  .dot {
+    width:8px; height:8px; border-radius:50%;
+    background:rgba(255,255,255,.3); cursor:pointer;
+    transition:background .2s, transform .2s;
+  }
+  .dot.active { background:#fff; transform:scale(1.3); }
+  .dot.dark   { background:rgba(0,0,0,.2); }
+  .dot.dark.active { background:var(--duck); }
+
+  /* ── Slide counter ── */
+  .counter {
+    position:fixed; bottom:26px; right:28px;
+    font-size:12px; font-weight:600; color:rgba(255,255,255,.45);
+    z-index:100; letter-spacing:1px;
+  }
+  .counter.dark { color:rgba(0,0,0,.35); }
+
+  /* ── Keyboard hint ── */
+  .hint {
+    position:fixed; bottom:26px; left:28px;
+    font-size:11px; color:rgba(255,255,255,.35); z-index:100;
+    display:flex; align-items:center; gap:5px;
+  }
+  .hint.dark { color:rgba(0,0,0,.3); }
+  .key { border:1px solid rgba(255,255,255,.3); border-radius:4px; padding:1px 5px; font-size:10px; }
+  .hint.dark .key { border-color:rgba(0,0,0,.2); }
+
+  /* ── Typography ── */
+  .eyebrow {
+    font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase;
+    opacity:.6; margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow-line { width:32px; height:2px; background:currentColor; border-radius:2px; opacity:.5; }
+  h1 { font-size:clamp(36px,5vw,64px); font-weight:900; line-height:1.05; margin-bottom:20px; }
+  h1 .dim { opacity:.5; display:block; }
+  h2 { font-size:clamp(28px,3.5vw,48px); font-weight:900; line-height:1.1; margin-bottom:12px; }
+  .lead { font-size:clamp(16px,1.8vw,22px); opacity:.7; max-width:640px; line-height:1.6; margin-bottom:0; }
+  .lead strong { opacity:1; }
+
+  /* ── Pill tag ── */
+  .pill {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:700; padding:4px 12px; border-radius:20px;
+    background:rgba(255,255,255,.15); color:#fff; margin-bottom:20px;
+  }
+  .pill.light { background:var(--duck-l); color:var(--duck-d); }
+
+  /* ── Feature grid ── */
+  .feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; width:100%; max-width:900px; margin-top:32px; }
+  .feat-grid.two { grid-template-columns:repeat(2,1fr); max-width:720px; }
+  .feat-grid.four { grid-template-columns:repeat(4,1fr); max-width:960px; }
+  .feat-card {
+    background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15);
+    border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:10px;
+  }
+  .feat-card.light { background:#fff; border-color:#e5e7eb; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+  .feat-card.duck-l { background:var(--duck-ll); border-color:#c4e4f0; }
+  .feat-icon {
+    width:40px; height:40px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.15); flex-shrink:0;
+  }
+  .feat-icon.blue  { background:#eff6ff; }
+  .feat-icon.green { background:#f0fdf4; }
+  .feat-icon.purple{ background:#fdf4ff; }
+  .feat-icon.amber { background:#fef9c3; }
+  .feat-icon.orange{ background:#fff7ed; }
+  .feat-title { font-size:14px; font-weight:700; line-height:1.3; }
+  .feat-desc  { font-size:12px; opacity:.65; line-height:1.5; }
+  .feat-badge { font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; display:inline-block; margin-top:auto; width:fit-content; }
+  .badge-new  { background:#fef3c7; color:#92400e; }
+  .badge-law  { background:#fdf4ff; color:#6b21a8; }
+  .badge-pub  { background:#f0fdf4; color:#166534; }
+
+  /* ── Two-column layout ── */
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:56px; width:100%; max-width:940px; align-items:center; }
+  .two-col .col-text { display:flex; flex-direction:column; gap:0; }
+
+  /* ── Highlight box ── */
+  .hlbox {
+    background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15);
+    border-radius:14px; padding:18px 20px; margin-top:16px;
+  }
+  .hlbox.light { background:var(--duck-l); border-color:#bfe0ef; }
+  .hlbox p { font-size:13px; opacity:.85; line-height:1.6; }
+
+  /* ── Price cards ── */
+  .price-pair { display:grid; grid-template-columns:1fr 1fr; gap:20px; width:100%; max-width:780px; margin-top:24px; }
+  .price-card {
+    border-radius:20px; padding:28px 24px;
+    border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.08);
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .price-card.accent {
+    background:#fff; color:#111827; border-color:#fff;
+  }
+  .price-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; opacity:.55; }
+  .price-card.accent .price-label { opacity:.5; color:#374151; }
+  .price-main { font-size:40px; font-weight:900; line-height:1; }
+  .price-card.accent .price-main { color:var(--duck-d); }
+  .price-plus  { font-size:20px; font-weight:700; opacity:.5; }
+  .price-recurring { font-size:22px; font-weight:800; }
+  .price-card.accent .price-recurring { color:var(--duck-d); }
+  .price-note { font-size:12px; opacity:.6; margin-top:4px; line-height:1.5; }
+  .price-separator { height:1px; background:rgba(255,255,255,.15); margin:12px 0; }
+  .price-card.accent .price-separator { background:#e5e7eb; }
+  .price-feature { font-size:12px; opacity:.75; display:flex; align-items:center; gap:6px; }
+  .price-card.accent .price-feature { color:#374151; opacity:.85; }
+
+  /* ── Steps ── */
+  .steps { display:flex; flex-direction:column; gap:14px; margin-top:20px; max-width:560px; width:100%; }
+  .step { display:flex; align-items:flex-start; gap:16px; }
+  .step-num {
+    width:32px; height:32px; border-radius:50%; flex-shrink:0;
+    background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:800;
+  }
+  .step-num.accent { background:var(--duck); border-color:var(--duck-d); color:#fff; }
+  .step-text { padding-top:5px; }
+  .step-title { font-size:15px; font-weight:700; margin-bottom:2px; }
+  .step-sub   { font-size:13px; opacity:.6; }
+
+  /* ── Big stat ── */
+  .stat-row { display:flex; gap:32px; margin-top:28px; flex-wrap:wrap; }
+  .stat { display:flex; flex-direction:column; gap:4px; }
+  .stat-num { font-size:clamp(32px,4vw,52px); font-weight:900; color:var(--duck); line-height:1; }
+  .stat-num.white { color:#fff; }
+  .stat-label { font-size:12px; font-weight:600; opacity:.55; text-transform:uppercase; letter-spacing:1px; }
+
+  /* ── Module list ── */
+  .mod-list { display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+  .mod-item { display:flex; align-items:center; gap:10px; font-size:14px; }
+  .mod-item svg { flex-shrink:0; opacity:.8; }
+
+  /* ── Responsive ── */
+  @media(max-width:768px) {
+    .slide { padding:40px 24px; }
+    .feat-grid, .feat-grid.four { grid-template-columns:1fr 1fr; }
+    .two-col, .price-pair { grid-template-columns:1fr; gap:24px; }
+    h1 { font-size:32px; }
+    h2 { font-size:26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ─────────────────── SLIDE 1: PORTADA ─────────────────── -->
+  <div class="slide slide-cover active" id="s0">
+    <div class="eyebrow">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      Mamá Pato · Benicarló
+      <span class="eyebrow-line"></span>
+    </div>
+    <h1>
+      Plataforma digital
+      <span class="dim">para tu tienda</span>
+    </h1>
+    <p class="lead">Una solución completa: panel de administración, tienda, listas de nacimiento, fichajes, mensajes y mucho más — <strong>todo en un solo lugar.</strong></p>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-num white">13</div><div class="stat-label" style="color:rgba(255,255,255,.45)">módulos de gestión</div></div>
+      <div class="stat"><div class="stat-num white">4</div><div class="stat-label" style="color:rgba(255,255,255,.45)">secciones públicas</div></div>
+      <div class="stat"><div class="stat-num white">1</div><div class="stat-label" style="color:rgba(255,255,255,.45)">plataforma integrada</div></div>
+    </div>
+  </div>
+
+  <!-- ─────────────────── SLIDE 2: EL PUNTO DE PARTIDA ─────────────────── -->
+  <div class="slide slide-gray" id="s1">
+    <div class="eyebrow" style="color:var(--duck)">
+      <span class="eyebrow-line"></span>
+      El punto de partida
+    </div>
+    <h2>¿Qué tiene hoy Mamá Pato<br>y qué podría tener?</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:860px;margin-top:28px">
+      <div class="feat-card light" style="border-left:3px solid #e5e7eb">
+        <div style="font-size:13px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Situación actual</div>
+        <div class="mod-list">
+          <div class="mod-item" style="color:#6b7280">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Gestión de stock en papel o Excel
+          </div>
+          <div class="mod-item" style="color:#6b7280">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Listas de nacimiento gestionadas manualmente
+          </div>
+          <div class="mod-item" style="color:#6b7280">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Control de fichajes pendiente de digitalizar
+          </div>
+          <div class="mod-item" style="color:#6b7280">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            WhatsApp y email en apps separadas
+          </div>
+          <div class="mod-item" style="color:#6b7280">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Datos de Ontario solo visibles en Ontario
+          </div>
+        </div>
+      </div>
+      <div class="feat-card light" style="border-left:3px solid var(--duck)">
+        <div style="font-size:13px;font-weight:700;color:var(--duck);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Con la plataforma</div>
+        <div class="mod-list">
+          <div class="mod-item" style="color:#111827">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--duck)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Catálogo y stock gestionados en tiempo real
+          </div>
+          <div class="mod-item" style="color:#111827">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--duck)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Listas de nacimiento con página pública propia
+          </div>
+          <div class="mod-item" style="color:#111827">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--duck)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Fichajes digitales conformes a la Ley 2026
+          </div>
+          <div class="mod-item" style="color:#111827">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--duck)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Bandeja unificada con asistente de IA
+          </div>
+          <div class="mod-item" style="color:#111827">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--duck)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Ventas y gastos de Ontario integrados en el panel
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────── SLIDE 3: VISIÓN GENERAL ─────────────────── -->
+  <div class="slide slide-duck" id="s2">
+    <div class="eyebrow" style="opacity:.7">
+      <span class="eyebrow-line"></span>
+      La plataforma
+    </div>
+    <h2>Dos partes que trabajan juntas</h2>
+    <p class="lead">Un panel privado para el equipo y una presencia pública profesional para los clientes.</p>
+    <div class="feat-grid two" style="margin-top:28px">
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="feat-title">Panel de administración</div>
+        <div class="feat-desc">Espacio privado para el equipo. Gestión de productos, clientes, pedidos, fichajes, mensajes y más. Solo accesible con contraseña.</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.5;margin-top:6px">13 módulos</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="feat-title">Presencia pública online</div>
+        <div class="feat-desc">Tienda accesible para cualquier visitante. Catálogo de productos, fichas detalladas, listas de nacimiento y páginas legales.</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.5;margin-top:6px">4 secciones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────── SLIDE 4: MÓDULOS DEL PANEL ─────────────────── -->
+  <div class="slide slide-light" id="s3">
+    <div class="eyebrow" style="color:var(--duck)">
+      <span class="eyebrow-line"></span>
+      Panel de administración
+    </div>
+    <h2>Todo lo que necesita el equipo</h2>
+    <div class="feat-grid four" style="margin-top:20px">
+      <div class="feat-card light">
+        <div class="feat-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        <div class="feat-title">Dashboard</div>
+        <div class="feat-desc">KPIs, alertas de stock y accesos rápidos</div>
+      </div>
+      <div class="feat-card light">
+        <div class="feat-icon amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+        <div class="feat-title">Productos</div>
+        <div class="feat-desc">Catálogo, stock web y físico, alertas</div>
+      </div>
+      <div class="feat-card light">
+        <div class="feat-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="feat-title">Listas de nacimiento</div>
+        <div class="feat-desc">Gestión completa con seguimiento de regalos</div>
+      </div>
+      <div class="feat-card light">
+        <div class="feat-icon purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="feat-title">Clientes</div>
+        <div class="feat-desc">Ficha, notas internas y canal preferido</div>
+      </div>
+      <div class="feat-card light">
+        <div class="feat-icon orange"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+        <div class="feat-title">Vales regalo</div>
+        <div class="feat-desc">Emisión, saldo, QR y caducidad</div>
+      </div>
+      <div class="feat-card light">
+        <div class="feat-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="m16 8 5 5-5 5"/></svg></div>
+        <div class="feat-title">Proveedores</div>
+        <div class="feat-desc">Directorio con plazos y marcas</div>
+      </div>
+      <div class="feat-card light">
+        <div class="feat-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></div>
+        <div class="feat-title">Sync Ontario</div>
+        <div class="feat-desc">Importar catálogo y precios desde Ontario</div>
+      </div>
+      <div class="feat-card light">
+        <div class="feat-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
+        <div class="feat-title">Configuración</div>
+        <div class="feat-desc">Datos tienda, horarios y notificaciones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────── SLIDE 5: MÓDULOS NUEVOS ─────────────────── -->
+  <div class="slide slide-dark" id="s4">
+    <div class="eyebrow" style="color:rgba(255,255,255,.5)">
+      <span class="eyebrow-line"></span>
+      Módulos nuevos y diferenciales
+    </div>
+    <h2>Lo que ningún otro sistema<br>tienen integrado</h2>
+    <div class="feat-grid" style="margin-top:24px;max-width:900px">
+      <div class="feat-card" style="border-color:rgba(37,150,190,.4);background:rgba(37,150,190,.1)">
+        <div class="feat-icon" style="background:rgba(37,150,190,.25)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5bb8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="feat-title">Ontario ERP integrado</div>
+        <div class="feat-desc">Ventas de 12 meses, gastos por categoría, facturas pendientes y top de productos — todo desde el panel, sin abrir Ontario.</div>
+        <span class="feat-badge badge-new">Nuevo</span>
+      </div>
+      <div class="feat-card" style="border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08)">
+        <div class="feat-icon" style="background:rgba(34,197,94,.2)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="feat-title">Mensajes + IA</div>
+        <div class="feat-desc">WhatsApp y email unificados en una sola bandeja. El asistente de IA sugiere respuestas en base al contexto de la conversación.</div>
+        <span class="feat-badge badge-new">IA integrada</span>
+      </div>
+      <div class="feat-card" style="border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.08)">
+        <div class="feat-icon" style="background:rgba(167,139,250,.2)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="feat-title">Fichajes y turnos</div>
+        <div class="feat-desc">Control horario digital conforme a la Ley de registro de jornada 2026. Historial, edición, planificación de turnos e informes CSV.</div>
+        <span class="feat-badge badge-law">Ley 2026</span>
+      </div>
+      <div class="feat-card" style="border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.07)">
+        <div class="feat-icon" style="background:rgba(251,191,36,.2)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="feat-title">Registro de actividad</div>
+        <div class="feat-desc">Log automático de cada acción realizada en el panel: quién lo hizo, qué fue exactamente y a qué hora. Exportable a CSV.</div>
+        <span class="feat-badge" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)">Trazabilidad</span>
+      </div>
+      <div class="feat-card" style="grid-column:span 2; border-color:rgba(255,255,255,.1)">
+        <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+          <div class="feat-icon" style="background:rgba(255,255,255,.1)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <div>
+            <div class="feat-title">Listas de nacimiento públicas</div>
+            <div class="feat-desc">Cada lista genera una URL única que la tienda comparte con la familia. Los invitados pueden ver los productos pendientes y contactar para comprar.</div>
+          </div>
+          <span class="feat-badge badge-pub" style="margin-left:auto;font-size:11px">Público · Diferencial</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────── SLIDE 6: TIENDA PÚBLICA ─────────────────── -->
+  <div class="slide slide-light" id="s5">
+    <div class="eyebrow" style="color:var(--duck)">
+      <span class="eyebrow-line"></span>
+      Lo que ven los clientes
+    </div>
+    <div class="two-col">
+      <div class="col-text">
+        <h2>Una presencia online<br>profesional y útil</h2>
+        <p class="lead" style="font-size:16px;margin-top:12px">La cara visible de la tienda: catálogo de productos accesible a cualquier hora, fichas detalladas y acceso directo a las listas de nacimiento.</p>
+        <div class="hlbox light" style="margin-top:20px">
+          <p>Cada lista de nacimiento genera una <strong>página pública única</strong> con URL compartible. Familia y amigos pueden consultar los regalos pendientes y contactar directamente con la tienda. <strong>Sin necesidad de ninguna app ni registro.</strong></p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="feat-card duck-l">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="feat-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+            <div><div class="feat-title">Tienda online</div><div class="feat-desc">Catálogo con filtros y disponibilidad en tiempo real</div></div>
+          </div>
+        </div>
+        <div class="feat-card duck-l">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="feat-icon amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+            <div><div class="feat-title">Ficha de producto</div><div class="feat-desc">Precio, stock, descripción y consulta por WhatsApp</div></div>
+          </div>
+        </div>
+        <div class="feat-card duck-l">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="feat-icon purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+            <div><div class="feat-title">Listas públicas</div><div class="feat-desc">URL única por bebé, visible sin registro</div></div>
+          </div>
+        </div>
+        <div class="feat-card duck-l">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="feat-icon orange"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div><div class="feat-title">Páginas legales</div><div class="feat-desc">Aviso legal, privacidad, cookies, envíos</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────── SLIDE 7: DISEÑO Y TECNOLOGÍA ─────────────────── -->
+  <div class="slide slide-duck" id="s6">
+    <div class="eyebrow" style="opacity:.7">
+      <span class="eyebrow-line"></span>
+      Diseño y tecnología
+    </div>
+    <div class="two-col">
+      <div class="col-text">
+        <h2>Sencilla de usar.<br>Sin depender de nadie.</h2>
+        <p class="lead" style="font-size:16px;margin-top:14px">Cada pantalla está diseñada con <strong>usabilidad máxima</strong> para cualquier perfil de usuario, sin importar su nivel de experiencia digital.</p>
+        <div class="mod-list" style="margin-top:20px;gap:10px">
+          <div class="mod-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Funciona en móvil, tablet y ordenador
+          </div>
+          <div class="mod-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Sin instalaciones — solo un navegador
+          </div>
+          <div class="mod-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Cambios guardados al instante
+          </div>
+          <div class="mod-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Compatible Chrome, Firefox, Safari, Edge
+          </div>
+          <div class="mod-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Sin costes de servidor propios
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="feat-card" style="background:rgba(255,255,255,.12)">
+          <div class="feat-title">Diseño responsive</div>
+          <div class="feat-desc">La misma experiencia en cualquier pantalla. El panel tiene menú lateral colapsable en móvil.</div>
+        </div>
+        <div class="feat-card" style="background:rgba(255,255,255,.12)">
+          <div class="feat-title">Datos seguros</div>
+          <div class="feat-desc">El panel está protegido con autenticación. Las rutas privadas redirigen al login automáticamente.</div>
+        </div>
+        <div class="feat-card" style="background:rgba(255,255,255,.12)">
+          <div class="feat-title">SEO y legales incluidos</div>
+          <div class="feat-desc">Sitemap.xml, robots.txt y todas las páginas legales requeridas por la LOPD ya incluidas.</div>
+        </div>
+        <div class="feat-card" style="background:rgba(255,255,255,.12)">
+          <div class="feat-title">Demo funcional ya lista</div>
+          <div class="feat-desc">La plataforma existe hoy y puede verse en funcionamiento. Todos los módulos son operativos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────── SLIDE 8: PRECIOS ─────────────────── -->
+  <div class="slide slide-cover" id="s7">
+    <div class="eyebrow" style="opacity:.6">
+      <span class="eyebrow-line"></span>
+      Propuesta económica
+    </div>
+    <h2>La misma plataforma.<br>Dos formas de pagarla.</h2>
+    <p class="lead" style="margin-bottom:0">Ambas opciones incluyen exactamente los mismos módulos y funcionalidades.</p>
+    <div class="price-pair">
+      <div class="price-card">
+        <div class="price-label">Suscripción mensual</div>
+        <div class="price-main">3.000€</div>
+        <div class="price-note">Desarrollo y puesta en marcha · pago único al inicio</div>
+        <div class="price-plus">+</div>
+        <div class="price-recurring">80€<span style="font-size:14px;font-weight:500;opacity:.6">/mes</span></div>
+        <div class="price-note">Uso · hosting · soporte · mantenimiento</div>
+        <div class="price-separator"></div>
+        <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Sin permanencia mínima</div>
+        <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Los 3.000€ son fraccionables</div>
+      </div>
+      <div class="price-card accent">
+        <div class="price-label">Licencia perpetua</div>
+        <div class="price-main">6.000€</div>
+        <div class="price-note" style="color:#6b7280">Pago único · sin mensualidades nunca · software tuyo para siempre</div>
+        <div class="price-separator"></div>
+        <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--duck)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Código fuente entregado</div>
+        <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--duck)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Transferencia de derechos de propiedad</div>
+        <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--duck)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Sin dependencia del desarrollador</div>
+        <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--duck)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Pago fraccionable o financiable</div>
+        <div style="margin-top:10px;font-size:11px;color:var(--duck);font-weight:700">Más rentable a partir del 3er año de uso</div>
+      </div>
+    </div>
+    <div style="font-size:12px;opacity:.4;margin-top:8px">Precios sin IVA · Plazo de desarrollo: 2 meses desde la firma</div>
+  </div>
+
+  <!-- ─────────────────── SLIDE 9: PRÓXIMOS PASOS ─────────────────── -->
+  <div class="slide slide-light" id="s8">
+    <div class="eyebrow" style="color:var(--duck)">
+      <span class="eyebrow-line"></span>
+      ¿Qué sigue?
+    </div>
+    <div class="two-col">
+      <div class="col-text">
+        <h2>De la demo a<br>la plataforma real</h2>
+        <p class="lead" style="font-size:16px;margin-top:12px">La plataforma ya existe en demo funcional. El siguiente paso es adaptarla, conectarla y ponerla a funcionar con los datos reales de Mamá Pato.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num accent">1</div>
+            <div class="step-text">
+              <div class="step-title">Elegir modelo de pago</div>
+              <div class="step-sub">Suscripción mensual o licencia perpetua</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num accent">2</div>
+            <div class="step-text">
+              <div class="step-title">Firma del presupuesto</div>
+              <div class="step-sub">Inicio del desarrollo a partir de ese momento</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num accent">3</div>
+            <div class="step-text">
+              <div class="step-title">Desarrollo e implantación</div>
+              <div class="step-sub">Duración estimada: 2 meses</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num accent">4</div>
+            <div class="step-text">
+              <div class="step-title">Formación del equipo y puesta en marcha</div>
+              <div class="step-sub">La plataforma queda en vuestras manos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+        <div class="feat-card light" style="width:100%">
+          <div style="font-size:13px;font-weight:700;color:var(--duck);margin-bottom:6px">Hoy: Demo funcional</div>
+          <div class="feat-desc">Todos los módulos operativos con datos de ejemplo. Puedes verlo en funcionamiento ahora mismo.</div>
+        </div>
+        <div class="feat-card light" style="width:100%;border-color:var(--duck);border-width:2px">
+          <div style="font-size:13px;font-weight:700;color:var(--duck);margin-bottom:6px">Siguiente: Plataforma real</div>
+          <div class="feat-desc">Datos reales de Mamá Pato, dominio propio, conexión a Ontario y empleadas configuradas.</div>
+        </div>
+        <div style="font-size:13px;color:#6b7280;line-height:1.6;padding:12px 16px;background:#f8fafc;border-radius:10px;width:100%">
+          La propuesta detallada con todos los módulos, funcionalidades y condiciones económicas completas está disponible para revisarla con calma.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- nav buttons -->
+<button class="nav-btn prev hide" id="btnPrev" onclick="goTo(current-1)">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+</button>
+<button class="nav-btn next" id="btnNext" onclick="goTo(current+1)">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+</button>
+
+<!-- dots -->
+<div class="dots" id="dots"></div>
+
+<!-- counter -->
+<div class="counter" id="counter">1 / 9</div>
+
+<!-- hint -->
+<div class="hint" id="hint">
+  <span class="key">←</span><span class="key">→</span> navegar &nbsp;·&nbsp; <span class="key">Esc</span> inicio
+</div>
+
+<script>
+  const TOTAL = 9;
+  let current = 0;
+
+  const slides  = Array.from(document.querySelectorAll('.slide'));
+  const dotsEl  = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const hint    = document.getElementById('hint');
+
+  // Build dots
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function isLight(idx) {
+    return slides[idx].classList.contains('slide-light') || slides[idx].classList.contains('slide-gray');
+  }
+
+  function render(prev, next) {
+    if (prev !== null && prev !== next) {
+      slides[prev].classList.remove('active');
+      slides[prev].classList.add('exit-left');
+      setTimeout(() => slides[prev].classList.remove('exit-left'), 350);
+    }
+    slides[next].classList.add('active');
+
+    // dots
+    const dots = dotsEl.querySelectorAll('.dot');
+    dots.forEach((d, i) => {
+      d.className = 'dot' + (isLight(next) ? ' dark' : '') + (i === next ? ' active' : '');
+    });
+
+    // counter & hint
+    counter.textContent = (next + 1) + ' / ' + TOTAL;
+    counter.className = 'counter' + (isLight(next) ? ' dark' : '');
+    hint.className    = 'hint'    + (isLight(next) ? ' dark' : '');
+
+    // nav buttons style
+    const lightMode = isLight(next);
+    [btnPrev, btnNext].forEach(b => {
+      b.style.background = lightMode ? 'rgba(0,0,0,.07)' : 'rgba(255,255,255,.12)';
+      b.style.borderColor= lightMode ? 'rgba(0,0,0,.12)'  : 'rgba(255,255,255,.2)';
+      b.style.color      = lightMode ? '#374151' : '#fff';
+    });
+
+    btnPrev.classList.toggle('hide', next === 0);
+    btnNext.classList.toggle('hide', next === TOTAL - 1);
+  }
+
+  function goTo(idx) {
+    if (idx < 0 || idx >= TOTAL) return;
+    const prev = current;
+    current = idx;
+    render(prev, current);
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ')  { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                      { e.preventDefault(); goTo(current - 1); }
+    if (e.key === 'Escape')                                                  goTo(0);
+  });
+
+  // Click on slide to advance (not on buttons/dots)
+  document.getElementById('deck').addEventListener('click', e => {
+    if (e.target.closest('.nav-btn') || e.target.closest('.dots')) return;
+    goTo(current + 1);
+  });
+
+  // Touch swipe
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive:true });
+  document.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1));
+  });
+
+  // Init
+  render(null, 0);
+</script>
+</body>
+</html>
