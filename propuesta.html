@@ -114,6 +114,14 @@
   .plan.featured .plan-price-sub { color:rgba(255,255,255,.75); }
   .plan-period { font-size:13px; color:var(--gray-400); margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--gray-200); }
   .plan.featured .plan-period { color:rgba(255,255,255,.65); border-bottom-color:rgba(255,255,255,.2); }
+  /* Subscription price breakdown */
+  .price-breakdown { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--gray-200); }
+  .price-row { display:flex; align-items:baseline; justify-content:space-between; padding:8px 0; border-bottom:1px dashed var(--gray-200); }
+  .price-row:last-child { border-bottom:none; }
+  .price-row-label { font-size:13px; color:var(--gray-500); max-width:55%; line-height:1.4; }
+  .price-row-amount { font-size:22px; font-weight:800; color:var(--gray-900); white-space:nowrap; }
+  .price-row-amount small { font-size:13px; font-weight:500; color:var(--gray-400); margin-left:2px; }
+  .price-plus { font-size:18px; font-weight:700; color:var(--gray-300); text-align:center; padding:4px 0; }
   .plan-whybox { background:var(--gray-50); border-radius:10px; padding:14px 16px; margin-bottom:20px; }
   .plan.featured .plan-whybox { background:rgba(255,255,255,.12); }
   .plan-whybox p { font-size:13px; color:var(--gray-600); line-height:1.6; }
@@ -644,7 +652,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2596be" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         Suscripción mensual
       </h4>
-      <p>Pagas una puesta en marcha inicial y luego una cuota mensual que cubre el uso, el alojamiento, el soporte y las actualizaciones. Es la opción con menor desembolso inicial y con la tranquilidad de tener siempre a alguien detrás. <strong>El software sigue siendo propiedad del desarrollador</strong>; tú tienes licencia de uso mientras estés suscrito.</p>
+      <p>El coste se divide en dos partes: un abono único de <strong>3.000€</strong> por el desarrollo y la puesta en marcha, y una cuota de <strong>80€/mes</strong> que cubre el alojamiento, el soporte y el mantenimiento continuo. El software sigue siendo propiedad del desarrollador; el cliente dispone de una licencia de uso activa mientras mantenga la suscripción.</p>
     </div>
     <div class="compare-item">
       <h4>
@@ -659,11 +667,19 @@
 
     <div class="plan">
       <div class="plan-name">Suscripción mensual</div>
-      <div class="plan-price">3.000€</div>
-      <div class="plan-price-sub">+ 80€/mes</div>
-      <div class="plan-period">pago de puesta en marcha · luego cuota mensual sin permanencia</div>
+      <div class="price-breakdown">
+        <div class="price-row">
+          <div class="price-row-label">Desarrollo y puesta en marcha<br><small style="font-size:11px;color:var(--gray-400)">Pago único al inicio del proyecto</small></div>
+          <div class="price-row-amount">3.000€</div>
+        </div>
+        <div class="price-plus">+</div>
+        <div class="price-row">
+          <div class="price-row-label">Servicio mensual<br><small style="font-size:11px;color:var(--gray-400)">Hosting · soporte · mantenimiento</small></div>
+          <div class="price-row-amount">80€<small>/mes</small></div>
+        </div>
+      </div>
       <div class="plan-whybox">
-        <p>La opción con menor inversión inicial. Con 3.000€ se cubre el desarrollo y la configuración completa de la plataforma. La cuota mensual de 80€ incluye el alojamiento web, las actualizaciones de seguridad, el soporte técnico y un ajuste de mantenimiento mensual. El servicio no tiene permanencia mínima: puede cancelarse en cualquier momento con un preaviso de 30 días.</p>
+        <p>El coste se divide en dos conceptos independientes: <strong>3.000€ de desarrollo</strong> (abono único que cubre la construcción y configuración completa de la plataforma) y <strong>80€ mensuales de servicio</strong> (que incluyen el alojamiento web, las actualizaciones de seguridad, el soporte técnico y un ajuste de mantenimiento mensual). El servicio no tiene permanencia mínima y puede cancelarse con un preaviso de 30 días.</p>
       </div>
       <ul>
         <li>
