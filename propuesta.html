@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -26,24 +26,24 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Inter',sans-serif; color:var(--gray-800); background:#fff; font-size:15px; line-height:1.6; }
 
-  /* ── Cover ── */
+  /* Cover */
   .cover {
     background: linear-gradient(135deg, var(--duck-d) 0%, var(--duck) 60%, #5bb8d4 100%);
     color:#fff; padding:80px 64px 64px; min-height:320px;
     display:flex; flex-direction:column; justify-content:center;
   }
-  .cover-logo { font-size:13px; letter-spacing:3px; text-transform:uppercase; opacity:.7; margin-bottom:20px; }
+  .cover-logo { font-size:13px; letter-spacing:3px; text-transform:uppercase; opacity:.7; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
   .cover h1 { font-size:42px; font-weight:900; line-height:1.1; margin-bottom:12px; }
   .cover h1 span { opacity:.65; }
   .cover-sub { font-size:17px; opacity:.85; max-width:560px; margin-bottom:32px; }
   .cover-meta { display:flex; gap:40px; font-size:13px; opacity:.75; }
   .cover-meta strong { display:block; font-size:15px; font-weight:700; opacity:1; }
 
-  /* ── Layout ── */
+  /* Layout */
   .page { max-width:900px; margin:0 auto; padding:56px 40px; }
   @media(max-width:700px){ .page{padding:32px 20px;} .cover{padding:48px 24px;} }
 
-  /* ── Section header ── */
+  /* Section header */
   .section-label {
     display:inline-flex; align-items:center; gap:8px;
     font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
@@ -53,7 +53,7 @@
   h2 { font-size:28px; font-weight:800; color:var(--gray-900); margin-bottom:8px; }
   .lead { color:var(--gray-500); font-size:16px; margin-bottom:40px; max-width:640px; }
 
-  /* ── Module card ── */
+  /* Module card */
   .modules { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:56px; }
   @media(max-width:640px){ .modules{grid-template-columns:1fr;} }
   .module {
@@ -64,9 +64,9 @@
   .module-icon {
     width:44px; height:44px; border-radius:12px;
     display:flex; align-items:center; justify-content:center;
-    font-size:22px; margin-bottom:14px; flex-shrink:0;
+    margin-bottom:14px; flex-shrink:0;
   }
-  .module h3 { font-size:16px; font-weight:700; color:var(--gray-900); margin-bottom:6px; }
+  .module h3 { font-size:16px; font-weight:700; color:var(--gray-900); margin-bottom:6px; display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
   .module .desc { font-size:13px; color:var(--gray-500); margin-bottom:14px; line-height:1.55; }
   .module ul { list-style:none; }
   .module ul li { font-size:13px; color:var(--gray-700); padding:3px 0; display:flex; align-items:flex-start; gap:7px; }
@@ -77,70 +77,89 @@
   .tag-new { background:#fef3c7; color:#92400e; }
   .tag-law { background:#fdf4ff; color:#6b21a8; }
 
-  /* ── Full-width module ── */
+  /* Full-width module */
   .module.wide { grid-column:1/-1; }
   .module.wide .cols { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-top:16px; }
   @media(max-width:640px){ .module.wide .cols{grid-template-columns:1fr;} }
   .col-group h4 { font-size:13px; font-weight:700; color:var(--gray-900); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--gray-200); }
 
-  /* ── Divider ── */
+  /* Demo tip box */
+  .demo-tip {
+    background:#fffbeb; border:1px solid #fde68a; border-radius:10px;
+    padding:10px 13px; margin-top:14px; font-size:12px; color:#78350f;
+    display:flex; align-items:flex-start; gap:8px; line-height:1.5;
+  }
+  .demo-tip svg { flex-shrink:0; margin-top:1px; opacity:.7; }
+  .demo-tip strong { font-weight:700; }
+
+  /* Divider */
   .divider { border:none; border-top:1px solid var(--gray-200); margin:56px 0; }
 
-  /* ── Pricing ── */
-  .pricing-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:40px; }
+  /* Pricing — 2 plans */
+  .pricing-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:40px; }
   @media(max-width:700px){ .pricing-grid{grid-template-columns:1fr;} }
   .plan {
-    border:1px solid var(--gray-200); border-radius:20px; padding:28px 24px;
-    display:flex; flex-direction:column;
+    border:1px solid var(--gray-200); border-radius:20px; padding:32px 28px;
+    display:flex; flex-direction:column; position:relative;
   }
   .plan.featured {
     background: linear-gradient(135deg, var(--duck-d), var(--duck));
     color:#fff; border-color:transparent;
   }
-  .plan-name { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; opacity:.65; }
+  .plan-name { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; opacity:.65; }
   .plan.featured .plan-name { opacity:.85; color:#fff; }
-  .plan-price { font-size:38px; font-weight:900; line-height:1; margin-bottom:4px; color:var(--gray-900); }
+  .plan-price { font-size:42px; font-weight:900; line-height:1; margin-bottom:2px; color:var(--gray-900); }
   .plan.featured .plan-price { color:#fff; }
-  .plan-period { font-size:13px; color:var(--gray-400); margin-bottom:20px; }
-  .plan.featured .plan-period { color:rgba(255,255,255,.7); }
-  .plan-desc { font-size:13px; color:var(--gray-500); margin-bottom:20px; line-height:1.55; }
-  .plan.featured .plan-desc { color:rgba(255,255,255,.8); }
+  .plan-price-sub { font-size:16px; font-weight:600; color:var(--gray-500); margin-bottom:4px; }
+  .plan.featured .plan-price-sub { color:rgba(255,255,255,.75); }
+  .plan-period { font-size:13px; color:var(--gray-400); margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--gray-200); }
+  .plan.featured .plan-period { color:rgba(255,255,255,.65); border-bottom-color:rgba(255,255,255,.2); }
+  .plan-whybox { background:var(--gray-50); border-radius:10px; padding:14px 16px; margin-bottom:20px; }
+  .plan.featured .plan-whybox { background:rgba(255,255,255,.12); }
+  .plan-whybox p { font-size:13px; color:var(--gray-600); line-height:1.6; }
+  .plan.featured .plan-whybox p { color:rgba(255,255,255,.85); }
   .plan ul { list-style:none; flex:1; }
   .plan ul li { font-size:13px; padding:5px 0; border-bottom:1px solid var(--gray-100); display:flex; align-items:flex-start; gap:8px; color:var(--gray-700); }
   .plan.featured ul li { border-bottom-color:rgba(255,255,255,.15); color:rgba(255,255,255,.9); }
   .plan ul li:last-child { border-bottom:none; }
-  .plan ul li::before { content:'✓'; font-weight:700; flex-shrink:0; color:var(--duck); }
-  .plan.featured ul li::before { color:#a5f3fc; }
-  .plan ul li.no::before { content:'—'; color:var(--gray-400); }
-  .plan.featured ul li.no::before { color:rgba(255,255,255,.3); }
-  .plan-cta { margin-top:24px; padding:11px 20px; border-radius:10px; font-size:14px; font-weight:600; text-align:center; text-decoration:none; border:2px solid var(--duck); color:var(--duck); display:block; }
+  .plan ul li .chk { flex-shrink:0; color:var(--duck); margin-top:2px; }
+  .plan.featured ul li .chk { color:#a5f3fc; }
+  .plan-cta { margin-top:24px; padding:13px 20px; border-radius:10px; font-size:14px; font-weight:700; text-align:center; text-decoration:none; border:2px solid var(--duck); color:var(--duck); display:block; }
   .plan.featured .plan-cta { background:#fff; color:var(--duck-d); border-color:#fff; }
-  .plan-badge { font-size:11px; font-weight:700; padding:2px 10px; border-radius:20px; display:inline-block; margin-bottom:12px; }
-  .plan-badge.rec { background:rgba(255,255,255,.2); color:#fff; }
+  .plan-badge {
+    font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px;
+    display:inline-flex; align-items:center; gap:5px; margin-bottom:14px;
+    background:rgba(255,255,255,.18); color:#fff;
+  }
 
-  /* ── Add-ons table ── */
-  .addons { width:100%; border-collapse:collapse; margin-bottom:48px; }
-  .addons th { text-align:left; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--gray-400); padding:10px 14px; border-bottom:1px solid var(--gray-200); }
-  .addons td { padding:12px 14px; font-size:14px; border-bottom:1px solid var(--gray-100); vertical-align:top; }
-  .addons tr:last-child td { border-bottom:none; }
-  .addons td:last-child { font-weight:700; color:var(--gray-900); white-space:nowrap; text-align:right; }
-  .addons td.note { font-size:12px; color:var(--gray-400); }
+  /* Comparison note */
+  .compare-box { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:40px; }
+  @media(max-width:640px){ .compare-box{grid-template-columns:1fr;} }
+  .compare-item { border:1px solid var(--gray-200); border-radius:12px; padding:16px 18px; }
+  .compare-item h4 { font-size:13px; font-weight:700; color:var(--gray-900); margin-bottom:6px; display:flex; align-items:center; gap:7px; }
+  .compare-item p { font-size:13px; color:var(--gray-500); line-height:1.55; }
 
-  /* ── Highlight box ── */
+  /* Highlight box */
   .highlight { background:var(--duck-l); border:1px solid #bfe0ef; border-radius:16px; padding:24px; margin-bottom:32px; }
-  .highlight h4 { font-size:15px; font-weight:700; color:var(--duck-d); margin-bottom:8px; }
+  .highlight h4 { font-size:15px; font-weight:700; color:var(--duck-d); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
   .highlight p { font-size:14px; color:var(--gray-700); line-height:1.6; }
 
-  /* ── Tech stack ── */
+  /* Tech stack */
   .tech { display:flex; flex-wrap:wrap; gap:10px; margin:8px 0 32px; }
   .tech span { font-size:12px; font-weight:600; padding:4px 12px; background:var(--gray-100); color:var(--gray-700); border-radius:20px; }
 
-  /* ── Footer ── */
+  /* Table */
+  .tbl { width:100%; border-collapse:collapse; margin-bottom:48px; }
+  .tbl th { text-align:left; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--gray-400); padding:10px 14px; border-bottom:1px solid var(--gray-200); }
+  .tbl td { padding:12px 14px; font-size:14px; border-bottom:1px solid var(--gray-100); vertical-align:top; }
+  .tbl tr:last-child td { border-bottom:none; }
+
+  /* Footer */
   .doc-footer { margin-top:64px; padding-top:32px; border-top:1px solid var(--gray-200); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
-  .doc-footer .brand { font-size:18px; font-weight:800; color:var(--duck); }
+  .doc-footer .brand { font-size:18px; font-weight:800; color:var(--duck); display:flex; align-items:center; gap:8px; }
   .doc-footer .copy { font-size:12px; color:var(--gray-400); }
 
-  /* ── Print ── */
+  /* Print */
   @media print {
     body { font-size:13px; }
     .cover { min-height:auto; padding:48px 48px 40px; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -149,6 +168,7 @@
     .module, .plan { break-inside:avoid; }
     h2, .section-label { break-after:avoid; }
     .plan.featured { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .demo-tip { display:none; }
   }
 </style>
 </head>
@@ -156,7 +176,10 @@
 
 <!-- COVER -->
 <div class="cover">
-  <div class="cover-logo">🐥 Mamá Pato · Benicarló</div>
+  <div class="cover-logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+    Mamá Pato · Benicarló
+  </div>
   <h1>Plataforma digital<br><span>completa para tu tienda</span></h1>
   <p class="cover-sub">Documentación funcional y propuesta económica de todos los módulos desarrollados para Mamá Pato.</p>
   <div class="cover-meta">
@@ -169,24 +192,35 @@
 <div class="page">
 
   <!-- RESUMEN -->
-  <div class="section-label">📋 Resumen ejecutivo</div>
+  <div class="section-label">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg>
+    Resumen ejecutivo
+  </div>
   <h2>¿Qué incluye la plataforma?</h2>
-  <p class="lead">Una solución web completa con panel de administración privado, tienda online pública, sistema de listas de nacimiento, gestión de empleadas y conexión con Ontario ERP — todo en un solo sitio, sin necesidad de servidores ni knowhow técnico.</p>
+  <p class="lead">Una solución web completa con panel de administración privado, tienda online pública, sistema de listas de nacimiento, gestión de empleadas y conexión con Ontario ERP — todo en un solo sitio, sin necesidad de servidores ni conocimientos técnicos.</p>
 
   <div class="highlight">
-    <h4>🎯 Diseñado para ser fácil</h4>
+    <h4>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Diseñado para ser fácil
+    </h4>
     <p>Cada pantalla ha sido diseñada siguiendo el principio de que <strong>lo tiene que saber usar hasta una abuela sin conocimientos de informática</strong>. Botones grandes, confirmaciones antes de borrar, mensajes claros en cada acción y guías visuales en todo el panel.</p>
   </div>
 
   <!-- SECCIÓN 1: PANEL DE ADMINISTRACIÓN -->
-  <div class="section-label">🔒 Panel de administración</div>
+  <div class="section-label">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Panel de administración
+  </div>
   <h2>Panel privado</h2>
   <p class="lead">Acceso exclusivo para el equipo. Requiere contraseña. Disponible desde cualquier dispositivo y navegador.</p>
 
   <div class="modules">
 
     <div class="module">
-      <div class="module-icon" style="background:#eff6ff">📊</div>
+      <div class="module-icon" style="background:#eff6ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
       <h3>Dashboard principal</h3>
       <p class="desc">Visión general del negocio en un solo vistazo.</p>
       <ul>
@@ -196,10 +230,16 @@
         <li>Buscador global (clientes, listas, vales, productos)</li>
       </ul>
       <span class="module-tag tag-panel">Panel</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> el dashboard muestra 5 productos con stock bajo, 3 listas activas y los KPIs del mes. Prueba el buscador escribiendo "Emma" o "Bugaboo".</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#fef9c3">📦</div>
+      <div class="module-icon" style="background:#fef9c3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+      </div>
       <h3>Gestión de productos</h3>
       <p class="desc">Catálogo completo con control de stock en tiempo real.</p>
       <ul>
@@ -211,10 +251,16 @@
         <li>8 categorías: Movilidad, Porteo, Baño, Descanso…</li>
       </ul>
       <span class="module-tag tag-panel">Panel</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> pulsa "Stock" en cualquier fila para ajustar unidades con motivo. Pulsa "Editar" para modificar nombre, precio o imagen. Los cambios se guardan al instante.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#f0fdf4">👶</div>
+      <div class="module-icon" style="background:#f0fdf4">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
       <h3>Listas de nacimiento</h3>
       <p class="desc">Gestión completa de las listas de los bebés.</p>
       <ul>
@@ -227,10 +273,16 @@
       </ul>
       <span class="module-tag tag-panel">Panel</span>
       <span class="module-tag tag-public">Público</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> hay 5 listas activas (Emma, Hugo, Oliver…). Pulsa "Ver" en cualquiera para abrir la ficha completa. Pulsa "Nueva lista" para ver el formulario de alta.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#fdf4ff">👥</div>
+      <div class="module-icon" style="background:#fdf4ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
       <h3>Clientes</h3>
       <p class="desc">Agenda de clientes con notas internas y canal de contacto.</p>
       <ul>
@@ -241,10 +293,16 @@
         <li>Ficha individual con toda la actividad</li>
       </ul>
       <span class="module-tag tag-panel">Panel</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> 7 clientes de ejemplo con canal preferido y notas. Pulsa "Editar" para ver todos los campos o "Nuevo cliente" para añadir uno desde cero.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#fff7ed">🎁</div>
+      <div class="module-icon" style="background:#fff7ed">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      </div>
       <h3>Vales regalo</h3>
       <p class="desc">Emisión y control de bonos y vales de regalo.</p>
       <ul>
@@ -256,10 +314,16 @@
         <li>Estados: Activo, Agotado, Caducado</li>
       </ul>
       <span class="module-tag tag-panel">Panel</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> 4 vales activos con distintos saldos. Pulsa "Emitir vale" para ver el formulario completo con los campos de importe y caducidad.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#eff6ff">🚚</div>
+      <div class="module-icon" style="background:#eff6ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="m16 8 5 5-5 5"/><path d="M10 14v4a1 1 0 0 1-1 1H5"/></svg>
+      </div>
       <h3>Proveedores</h3>
       <p class="desc">Directorio de proveedores con condiciones y contacto.</p>
       <ul>
@@ -270,11 +334,17 @@
         <li>Crear y editar directamente desde la lista</li>
       </ul>
       <span class="module-tag tag-panel">Panel</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> varios proveedores con marcas y plazos. Pulsa el nombre para ver la ficha o "Nuevo proveedor" para añadir uno con todos sus datos.</span>
+      </div>
     </div>
 
     <div class="module wide">
-      <div class="module-icon" style="background:#ecfdf5">📈</div>
-      <h3>Ontario ERP — Panel de ventas y gastos <span class="module-tag tag-new" style="margin-left:8px">Nuevo</span></h3>
+      <div class="module-icon" style="background:#ecfdf5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h3>Ontario ERP — Panel de ventas y gastos <span class="module-tag tag-new">Nuevo</span></h3>
       <p class="desc">Los datos de ventas y contabilidad de Ontario visibles y gestionables directamente desde el panel web.</p>
       <div class="cols">
         <div class="col-group">
@@ -308,11 +378,17 @@
         </div>
       </div>
       <span class="module-tag tag-panel">Panel</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> 12 meses de ventas simuladas, 5 productos más vendidos y 3 facturas pendientes. Pulsa "Marcar pagada" en una factura y comprueba cómo el total pendiente se actualiza al instante.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#f0fdf4">💬</div>
-      <h3>Bandeja de mensajes <span class="module-tag tag-new" style="margin-left:6px">Nuevo</span></h3>
+      <div class="module-icon" style="background:#f0fdf4">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <h3>Bandeja de mensajes <span class="module-tag tag-new">Nuevo</span></h3>
       <p class="desc">WhatsApp y email en una sola pantalla, con asistente de inteligencia artificial.</p>
       <ul>
         <li>Conversaciones de WhatsApp y email unificadas</li>
@@ -326,11 +402,17 @@
       </ul>
       <span class="module-tag tag-panel">Panel</span>
       <span class="module-tag tag-new">IA integrada</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> 6 conversaciones mezcladas (WhatsApp + email). Abre cualquiera y pulsa "Sugerir respuesta" para ver cómo la IA propone un texto. Usa "Usar respuesta" para insertarlo en el campo y envíalo con Ctrl+Enter.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#fdf4ff">🕐</div>
-      <h3>Fichajes y turnos <span class="module-tag tag-new" style="margin-left:6px">Nuevo</span></h3>
+      <div class="module-icon" style="background:#fdf4ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h3>Fichajes y turnos <span class="module-tag tag-new">Nuevo</span></h3>
       <p class="desc">Control horario conforme a la Ley de registro de jornada 2026.</p>
       <ul>
         <li>Fichar entrada y salida con un solo clic</li>
@@ -344,11 +426,17 @@
       </ul>
       <span class="module-tag tag-panel">Panel</span>
       <span class="module-tag tag-law">Ley 2026</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> 4 empleadas con historial de 30 días. Pulsa "Registrar entrada" o "Registrar salida", navega a la pestaña "Turnos" para ver la cuadrícula de 14 días y asigna turnos arrastrando o pulsando cada celda.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#fff7ed">📋</div>
-      <h3>Registro de actividad <span class="module-tag tag-new" style="margin-left:6px">Nuevo</span></h3>
+      <div class="module-icon" style="background:#fff7ed">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <h3>Registro de actividad <span class="module-tag tag-new">Nuevo</span></h3>
       <p class="desc">Historial de todo lo que hace cada persona en el panel.</p>
       <ul>
         <li>Log automático de cada acción (crear, editar, borrar)</li>
@@ -359,23 +447,35 @@
         <li>Opción de limpiar el historial</li>
       </ul>
       <span class="module-tag tag-panel">Panel</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> realiza cualquier acción en el panel (edita un producto, elimina un cliente) y luego ve a Actividad para ver el registro automático. Filtra por "borrado" para ver solo eliminaciones.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#eff6ff">🔄</div>
+      <div class="module-icon" style="background:#eff6ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+      </div>
       <h3>Sincronización Ontario</h3>
       <p class="desc">Importar el catálogo de productos directamente desde Ontario ERP.</p>
       <ul>
         <li>Subir archivo de exportación de Ontario</li>
-        <li>Vista previa de cambios before de aplicar</li>
+        <li>Vista previa de cambios antes de aplicar</li>
         <li>Registro del historial de sincronizaciones</li>
         <li>Actualización de precios y stock en masa</li>
       </ul>
       <span class="module-tag tag-panel">Panel</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> la pantalla simula el proceso de importación con una vista previa de los productos que se actualizarían. En producción se conectaría al archivo de exportación real de Ontario.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#f0fdf4">⚙️</div>
+      <div class="module-icon" style="background:#f0fdf4">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      </div>
       <h3>Configuración</h3>
       <p class="desc">Ajustes de la tienda y del panel de administración.</p>
       <ul>
@@ -392,14 +492,19 @@
   <hr class="divider">
 
   <!-- SECCIÓN 2: PARTE PÚBLICA -->
-  <div class="section-label">🌐 Parte pública</div>
+  <div class="section-label">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    Parte pública
+  </div>
   <h2>Lo que ven los clientes</h2>
   <p class="lead">El escaparate online de la tienda: catálogo, fichas de producto y acceso a las listas de nacimiento de sus bebés.</p>
 
   <div class="modules">
 
     <div class="module">
-      <div class="module-icon" style="background:#ecfdf5">🛍️</div>
+      <div class="module-icon" style="background:#ecfdf5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </div>
       <h3>Tienda online</h3>
       <p class="desc">Catálogo de productos visible para cualquier visitante.</p>
       <ul>
@@ -409,10 +514,16 @@
         <li>Botón de consulta directa por WhatsApp</li>
       </ul>
       <span class="module-tag tag-public">Público</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> 8 productos reales de Mamá Pato (Bugaboo Fox, Stokke Trip Trapp…) con precios, fotos y disponibilidad. Cada producto tiene su página individual.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#fef9c3">🏷️</div>
+      <div class="module-icon" style="background:#fef9c3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      </div>
       <h3>Ficha de producto</h3>
       <p class="desc">Página individual detallada por producto.</p>
       <ul>
@@ -426,7 +537,9 @@
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#fdf4ff">🎀</div>
+      <div class="module-icon" style="background:#fdf4ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
       <h3>Listas de nacimiento públicas</h3>
       <p class="desc">Página de acceso para familia y amigos de cada bebé.</p>
       <ul>
@@ -436,10 +549,16 @@
         <li>Botón de contacto para comprar un regalo</li>
       </ul>
       <span class="module-tag tag-public">Público</span>
+      <div class="demo-tip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span><strong>En la demo:</strong> ve a /lista/emma-garcia-2026 para ver cómo la recibe una familia. La URL es la que la tienda compartiría por WhatsApp a los invitados.</span>
+      </div>
     </div>
 
     <div class="module">
-      <div class="module-icon" style="background:#fff7ed">📄</div>
+      <div class="module-icon" style="background:#fff7ed">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
       <h3>Páginas legales</h3>
       <p class="desc">Marco legal completo requerido por la LOPD.</p>
       <ul>
@@ -457,7 +576,10 @@
   <hr class="divider">
 
   <!-- SECCIÓN 3: ASPECTOS TÉCNICOS -->
-  <div class="section-label">⚙️ Aspectos técnicos</div>
+  <div class="section-label">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+    Aspectos técnicos
+  </div>
   <h2>¿Cómo está construida?</h2>
   <p class="lead">Tecnología moderna, fácil de mantener y sin costes de servidor.</p>
 
@@ -477,22 +599,30 @@
 
   <div class="modules" style="margin-bottom:0">
     <div class="module">
-      <div class="module-icon" style="background:#f0fdf4">📱</div>
+      <div class="module-icon" style="background:#f0fdf4">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      </div>
       <h3>Diseño responsive</h3>
       <p class="desc">Funciona perfectamente en móvil, tablet y ordenador. El panel tiene menú lateral colapsable en pantallas pequeñas.</p>
     </div>
     <div class="module">
-      <div class="module-icon" style="background:#eff6ff">💾</div>
+      <div class="module-icon" style="background:#eff6ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      </div>
       <h3>Datos persistentes</h3>
       <p class="desc">En la versión demo, todos los cambios se guardan en el navegador (localStorage). En producción se conectaría a una base de datos real.</p>
     </div>
     <div class="module">
-      <div class="module-icon" style="background:#fdf4ff">🔒</div>
+      <div class="module-icon" style="background:#fdf4ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
       <h3>Autenticación</h3>
       <p class="desc">El panel está protegido con login. Las rutas privadas redirigen al login si el usuario no está identificado.</p>
     </div>
     <div class="module">
-      <div class="module-icon" style="background:#fff7ed">🔍</div>
+      <div class="module-icon" style="background:#fff7ed">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
       <h3>SEO básico</h3>
       <p class="desc">Sitemap.xml y robots.txt generados. Títulos y meta-tags correctos en todas las páginas. Estructura de URLs limpia.</p>
     </div>
@@ -501,153 +631,147 @@
   <hr class="divider">
 
   <!-- SECCIÓN 4: PRECIOS -->
-  <div class="section-label">💰 Inversión</div>
-  <h2>Propuesta económica</h2>
-  <p class="lead">Tres opciones según el nivel de integración y soporte que necesites. Todos incluyen la plataforma completa tal y como está hoy.</p>
+  <div class="section-label">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    Propuesta económica
+  </div>
+  <h2>Dos formas de adquirir la plataforma</h2>
+  <p class="lead">La misma plataforma completa en dos modelos pensados para distintas necesidades: pagar mes a mes o ser dueño del software de por vida.</p>
+
+  <div class="compare-box">
+    <div class="compare-item">
+      <h4>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2596be" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        ¿Qué es el alquiler de software?
+      </h4>
+      <p>Pagas el desarrollo una vez y luego una cuota mensual que cubre el uso, el alojamiento, las actualizaciones y el soporte continuo. El código sigue siendo propiedad del desarrollador y tienes licencia de uso mientras estés suscrito. Ideal si quieres una inversión inicial baja y prefieres tener siempre a alguien detrás.</p>
+    </div>
+    <div class="compare-item">
+      <h4>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2596be" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        ¿Qué es la adquisición de software?
+      </h4>
+      <p>Un único pago que incluye las horas de desarrollo, la complejidad técnica del proyecto y la transferencia completa de todos los derechos sobre el código. La plataforma pasa a ser tuya al 100%. Puedes modificarla, ampliarla o cederla a quien quieras sin depender de nadie. No hay más pagos obligatorios salvo el hosting.</p>
+    </div>
+  </div>
 
   <div class="pricing-grid">
 
     <div class="plan">
-      <div class="plan-name">Básico</div>
-      <div class="plan-price">1.800€</div>
-      <div class="plan-period">pago único · sin mensualidad</div>
-      <p class="plan-desc">La plataforma tal cual está, instalada en tu hosting. Perfecta si tienes alguien que gestione pequeños cambios.</p>
+      <div class="plan-name">Alquiler de software</div>
+      <div class="plan-price">3.000€</div>
+      <div class="plan-price-sub">+ 80€/mes</div>
+      <div class="plan-period">pago inicial de desarrollo · luego suscripción mensual</div>
+      <div class="plan-whybox">
+        <p>La barrera de entrada más baja. Con 3.000€ cubre las horas de desarrollo y puesta en marcha. La cuota mensual de 80€ incluye el alojamiento, las actualizaciones de seguridad, el soporte técnico y una pequeña mejora o ajuste al mes. Si en algún momento decides no continuar, simplemente cancelas la suscripción.</p>
+      </div>
       <ul>
-        <li>Código fuente completo</li>
-        <li>Instalación en tu dominio</li>
-        <li>Panel de administración</li>
-        <li>Tienda pública + fichas</li>
-        <li>Listas de nacimiento</li>
-        <li>Fichajes y turnos (Ley 2026)</li>
-        <li>Mensajes + IA</li>
-        <li>Ontario ERP panel</li>
-        <li class="no">Base de datos real (backend)</li>
-        <li class="no">Soporte técnico mensual</li>
-        <li class="no">Actualizaciones futuras</li>
-        <li class="no">Formación del equipo</li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Plataforma completa instalada y configurada
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Panel de administración, tienda, listas, fichajes…
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Hosting y dominio gestionado (incluido en mensual)
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Actualizaciones de seguridad incluidas
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Soporte técnico prioritario por email/WhatsApp
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          1 ajuste o mejora pequeña al mes incluida
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Formación inicial del equipo (2h)
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Sin permanencia — cancela cuando quieras
+        </li>
       </ul>
       <a href="mailto:hola@mamapato.es" class="plan-cta">Solicitar presupuesto</a>
     </div>
 
     <div class="plan featured">
-      <span class="plan-badge rec">⭐ Recomendado</span>
-      <div class="plan-name">Profesional</div>
-      <div class="plan-price">2.900€</div>
-      <div class="plan-period">pago único + 79€/mes mantenimiento</div>
-      <p class="plan-desc">Lo mismo que el Básico más backend real con Supabase (base de datos en la nube) y soporte mensual incluido.</p>
+      <span class="plan-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Más popular · Sin mensualidad
+      </span>
+      <div class="plan-name">Adquisición de software</div>
+      <div class="plan-price">6.000€</div>
+      <div class="plan-price-sub">pago único · todo incluido</div>
+      <div class="plan-period">sin mensualidades · el software es tuyo para siempre</div>
+      <div class="plan-whybox">
+        <p>Un único pago que cubre las horas de desarrollo, la complejidad técnica de la plataforma y la transferencia total de los derechos de propiedad intelectual. El código pasa a ser tuyo al 100%: puedes modificarlo, ampliarlo o cederlo sin depender de nadie. Solo pagarás hosting aparte (aprox. 10–15€/mes).</p>
+      </div>
       <ul>
-        <li>Todo lo del plan Básico</li>
-        <li>Base de datos real (Supabase)</li>
-        <li>Multi-usuario con roles</li>
-        <li>Sincronización automática con Ontario</li>
-        <li>Backups automáticos diarios</li>
-        <li>Formación del equipo (2h)</li>
-        <li>Soporte técnico mensual incluido</li>
-        <li>Actualizaciones de seguridad</li>
-        <li>1 nueva funcionalidad al trimestre</li>
-        <li class="no">Integración WhatsApp Business API real</li>
-        <li class="no">App móvil nativa</li>
-      </ul>
-      <a href="mailto:hola@mamapato.es" class="plan-cta">Solicitar presupuesto</a>
-    </div>
-
-    <div class="plan">
-      <div class="plan-name">Completo</div>
-      <div class="plan-price">4.800€</div>
-      <div class="plan-period">pago único + 149€/mes mantenimiento</div>
-      <p class="plan-desc">Plataforma completa con integraciones reales de WhatsApp Business API, facturación y soporte prioritario.</p>
-      <ul>
-        <li>Todo lo del plan Profesional</li>
-        <li>WhatsApp Business API real</li>
-        <li>Email transaccional (confirmaciones automáticas)</li>
-        <li>Facturación y tickets de compra</li>
-        <li>Pasarela de pago (TPV virtual)</li>
-        <li>Panel de analytics avanzado</li>
-        <li>Formación del equipo (4h)</li>
-        <li>Soporte prioritario (respuesta en 24h)</li>
-        <li>Actualizaciones y mejoras continuas</li>
-        <li>Consultoría de digitalización incluida</li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Todo lo del plan Alquiler incluido
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Código fuente entregado en su totalidad
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Transferencia de derechos de propiedad intelectual
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Libertad total para modificar y ampliar
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Sin dependencia del desarrollador
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Documentación técnica completa entregada
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Formación del equipo (4h)
+        </li>
+        <li>
+          <svg class="chk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          3 meses de soporte técnico post-entrega incluidos
+        </li>
       </ul>
       <a href="mailto:hola@mamapato.es" class="plan-cta">Solicitar presupuesto</a>
     </div>
 
   </div>
 
-  <!-- MÓDULOS EXTRA -->
-  <div class="section-label">➕ Módulos opcionales</div>
-  <h2>Funcionalidades adicionales</h2>
-  <p class="lead">Ampliaciones que se pueden contratar por separado en cualquier momento.</p>
-
-  <table class="addons">
-    <thead>
-      <tr>
-        <th style="width:30%">Módulo</th>
-        <th>Descripción</th>
-        <th>Precio</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>App móvil (PWA)</strong></td>
-        <td>Versión instalable en el móvil como si fuera una app nativa. Sin pasar por App Store.</td>
-        <td>+500€</td>
-      </tr>
-      <tr>
-        <td><strong>Notificaciones push</strong></td>
-        <td>Alertas automáticas al teléfono cuando hay stock bajo, un mensaje nuevo o un fichaje pendiente.</td>
-        <td>+350€</td>
-      </tr>
-      <tr>
-        <td><strong>Checkout online</strong></td>
-        <td>Carrito de compra y pago con tarjeta directamente en la tienda. Integración con Stripe o RedSys.</td>
-        <td>+1.200€</td>
-      </tr>
-      <tr>
-        <td><strong>IA avanzada (GPT)</strong></td>
-        <td>Sustituir el asistente de mensajes por ChatGPT-4o con contexto del catálogo y clientes de la tienda.</td>
-        <td>+450€ + API OpenAI</td>
-      </tr>
-      <tr>
-        <td><strong>Reservas online</strong></td>
-        <td>Sistema de citas para atención personalizada en tienda, con confirmación por WhatsApp o email.</td>
-        <td>+400€</td>
-      </tr>
-      <tr>
-        <td><strong>Gestor de nóminas</strong></td>
-        <td>Generación automática de informes de horas para la gestoría a partir de los fichajes registrados.</td>
-        <td>+300€</td>
-      </tr>
-      <tr>
-        <td><strong>Newsletter / Marketing</strong></td>
-        <td>Envío de emails masivos a clientes (novedades, newsletter, ofertas). Integración con Mailchimp.</td>
-        <td>+350€</td>
-      </tr>
-      <tr>
-        <td><strong>Migración de datos</strong></td>
-        <td>Importar clientes, productos y listas desde el sistema actual (Excel, Ontario, etc.) a la nueva plataforma.</td>
-        <td>+200–500€</td>
-      </tr>
-      <tr>
-        <td><strong>Formación adicional</strong></td>
-        <td>Sesión de formación presencial o por videollamada para el equipo. Duración: 2 horas.</td>
-        <td>+150€/sesión</td>
-      </tr>
-    </tbody>
-  </table>
-
   <!-- NOTA LEGAL PRECIOS -->
   <div class="highlight">
-    <h4>ℹ️ Notas sobre los precios</h4>
-    <p>Precios sin IVA. El plan Básico está disponible de inmediato (ya existe la demo). Los planes Profesional y Completo requieren entre 3 y 6 semanas de desarrollo adicional para conectar el backend real. Dominio y hosting (<em>aprox. 8–15€/mes</em>) no están incluidos pero podemos gestionarlo si se desea.</p>
+    <h4>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Notas sobre los precios
+    </h4>
+    <p>Precios sin IVA. La plataforma ya existe en demo funcional y está lista para ser configurada y puesta en producción. El plazo estimado de puesta en marcha es de <strong>2–3 semanas</strong> desde la firma del presupuesto. Dominio y hosting (<em>aprox. 10–15€/mes</em>) no están incluidos en la adquisición, pero pueden gestionarse conjuntamente si se desea.</p>
   </div>
 
   <hr class="divider">
 
   <!-- COMPARATIVA SECCIONES -->
-  <div class="section-label">📊 Resumen de secciones</div>
+  <div class="section-label">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    Resumen de secciones
+  </div>
   <h2>Qué hay en cada parte</h2>
 
-  <table class="addons">
+  <table class="tbl">
     <thead>
       <tr>
         <th>Sección</th>
@@ -677,8 +801,11 @@
 
   <!-- FOOTER -->
   <div class="doc-footer">
-    <div class="brand">🐥 Mamá Pato</div>
-    <div class="copy">Benicarló, Castellón · Documento generado el 06/04/2026 · Válido 60 días</div>
+    <div class="brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      Mamá Pato
+    </div>
+    <div class="copy">Benicarló, Castellón · Documento generado el 07/04/2026 · Válido 60 días</div>
   </div>
 
 </div>
