@@ -30,11 +30,11 @@
 - [ ] Recopilar assets de marca: logo, colores exactos, tipografías, fotos de tienda
 - [ ] Analizar estructura visual de [mamapatodebebes.com](https://mamapatodebebes.com/) y [bebemalaga.com](https://bebemalaga.com/)
 - [ ] Definir paleta de colores y tipografía definitiva del proyecto
-- [ ] Decidir pasarela de pago: Stripe, RedSys (Redsys es estándar en España) o Bizum
-- [ ] Decidir rol de acceso a mensajes/emails (quién ve qué)
-- [ ] Decidir nombre definitivo de dominio y configuración DNS
-- [ ] Confirmar si blog = feed de Instagram (API) o CMS propio con opción de vincular
-- [ ] Confirmar proveedor de emails transaccionales (Resend, SendGrid, Mailgun…)
+- [x] **Pasarela de pago: RedSys TPV virtual + Bizum** ✓
+- [x] **Roles de acceso: `Administrador`, `Trabajador`, `Cliente`** (cliente creado, sin acceso al panel por ahora) ✓
+- [x] **Dominio desarrollo:** `mamapato.miarquitecto.com` · **Dominio producción:** `mamapatodebebes.com` (migración al lanzar) ✓
+- [x] **Blog:** CMS propio para crear artículos; feed de Instagram como contenido inicial; opción de vincular cada artículo a un post de Instagram ✓
+- [ ] Confirmar proveedor de hosting y emails transaccionales *(pendiente de datos de acceso del cliente)*
 
 ---
 
@@ -60,10 +60,10 @@
 
 #### Blog / Novedades
 - [ ] Sección blog visible para visitantes
-- [ ] Vinculación con Instagram: mostrar los últimos posts como entradas de blog
-  - Opción A: embed del feed de Instagram (sin API, más sencillo)
-  - Opción B: integración con Instagram Graph API (posts como artículos completos)
-- [ ] Gestión básica de posts desde el panel (crear entrada manual también)
+- [ ] **Feed de Instagram** como contenido inicial del blog (embed del perfil público, sin API)
+- [ ] **CMS de artículos en el panel:** crear entradas con título, contenido rich-text, imagen destacada y fecha de publicación
+- [ ] Opción por artículo: vincular opcionalmente a un post de Instagram (URL del post → se muestra incrustado)
+- [ ] Gestión de artículos: listar, editar, publicar/despublicar, eliminar
 
 #### Proveedores en la web pública
 - [ ] Página pública de proveedores con imagen, logo y marcas que representan
@@ -111,7 +111,7 @@
   - Los padres pueden ver todos los productos de su lista
   - Los padres ven quién compró qué (info oculta en la vista pública/invitados)
   - Los padres pueden añadir y quitar productos de su lista desde la web
-  - Login simple para padres (email + PIN o magic link)
+  - **Login con magic link:** el padre recibe un enlace por email — sin contraseña que recordar
 
 #### Gestión de productos en la lista
 - [ ] **Añadir productos a la lista** (buscador de catálogo interno) desde el panel
@@ -145,6 +145,13 @@
 
 #### Filtros avanzados en el listado de listas
 - [ ] Filtrar por: tipo de lista, estado, visibilidad (pública/privada), fecha del evento, mamá/papá
+
+#### Registro propio de padres desde la web
+- [ ] Los padres pueden crear su cuenta + lista desde la web pública (formulario sencillo)
+- [ ] Las listas creadas desde la web se guardan automáticamente como **borrador** (no visibles en tienda ni en la URL pública aún)
+- [ ] La tienda recibe una **notificación inmediata**: *"Nueva lista de deseos pendiente de revisar"*
+- [ ] Desde el panel, la tienda puede revisar, editar, activar o rechazar el borrador
+- [ ] Solo cuando la tienda activa la lista, pasa a estado público/privado según la configuración elegida
 
 ---
 
@@ -200,9 +207,13 @@
 ### 2.5 Mensajes — control de acceso + Instagram
 
 #### Permisos de acceso
-- [ ] **Email solo visible para el rol Administrador** (propietaria)
-- [ ] Usuarios con rol empleado solo ven WhatsApp e Instagram
-- [ ] Configuración de roles en el panel de Configuración
+- [ ] **Roles confirmados del sistema:**
+  - `Administrador` — acceso completo (propietaria)
+  - `Trabajador` — acceso al panel sin emails privados ni configuración
+  - `Cliente` — rol reservado para padres; creado pero sin acceso al panel de administración por ahora
+- [ ] **Email solo visible para el Administrador**
+- [ ] El rol Trabajador solo ve WhatsApp e Instagram en la bandeja de mensajes
+- [ ] Gestión de roles en el panel de Configuración: asignar rol a cada usuario del panel
 
 #### Integración Instagram DMs
 - [ ] Conexión con Instagram Graph API (mensajes directos)
@@ -258,7 +269,10 @@
 - [ ] Estado de sincronización: activa, error, última sincronización
 
 #### Sincronización de catálogo
-- [ ] Publicar/despublicar productos del catálogo en cada plataforma
+- [ ] En la ficha de cada producto, **selector de canales de publicación** con checkboxes individuales:
+  - `☐ Web propia` · `☐ Amazon` · `☐ Miravia` · `☐ Vinted` · `☐ Wallapop`
+  - Botón **"Seleccionar todos"** y opción de desmarcar individualmente
+- [ ] Publicar/despublicar en un canal concreto sin afectar a los demás
 - [ ] Sincronizar stock bidireccional (si se vende en Amazon, se descuenta en el panel)
 - [ ] Gestión de precios por plataforma (puede diferir del precio web)
 
@@ -289,8 +303,8 @@
 - [ ] Formulario de datos del comprador (nombre, email, teléfono, dirección de envío)
 - [ ] Selección de método de envío (recogida en tienda / envío a domicilio)
 - [ ] Resumen del pedido antes de pagar
-- [ ] Integración con pasarela de pago (RedSys TPV virtual o Stripe)
-- [ ] Pago con tarjeta, Bizum (si la pasarela lo soporta)
+- [ ] Integración con **RedSys TPV virtual** (pasarela bancaria estándar en España)
+- [ ] Métodos de pago habilitados: **tarjeta de crédito/débito** y **Bizum** (ambos vía RedSys)
 
 ### 4.3 Pago desde listas de deseos
 - [ ] En la página pública de una lista, botón "Comprar este regalo" por producto
@@ -317,7 +331,8 @@
 - [ ] Importar proveedores y sus datos de contacto
 
 ### 5.2 Configuración de producción
-- [ ] Alta del dominio definitivo y configuración DNS
+- [ ] Despliegue inicial en **`mamapato.miarquitecto.com`** (entorno de staging/pruebas durante el desarrollo)
+- [ ] Migración a **`mamapatodebebes.com`** en el momento del lanzamiento (cambio DNS + redirección del sitio actual)
 - [ ] Configuración de la pasarela de pago en producción (con TPV real)
 - [ ] Configuración de emails transaccionales (confirmaciones de pedido, vales, etc.)
 - [ ] Conexión real con Instagram Graph API
@@ -339,18 +354,18 @@
 
 ---
 
-## Decisiones pendientes de confirmar
+## Decisiones confirmadas
 
-| # | Decisión | Responsable | Impacto |
-|---|----------|-------------|---------|
-| 1 | Pasarela de pago: RedSys, Stripe o Bizum | Cliente | Fase 4 |
-| 2 | Blog: feed de Instagram o CMS manual | Cliente | Fase 1 |
-| 3 | Login de padres en listas: email+PIN o magic link | Cliente | Fase 2 |
-| 4 | Marketplaces prioritarios en el lanzamiento | Cliente | Fase 3 |
-| 5 | Dominio definitivo (¿mismo que el actual?) | Cliente | Fase 5 |
-| 6 | Proveedor de hosting y emails transaccionales | Desarrollo | Fase 5 |
-| 7 | Roles de acceso: cuántos tipos de usuario, qué permisos exactos | Cliente | Fase 2 |
-| 8 | ¿Los padres crean su cuenta solos o la crea la tienda? | Cliente | Fase 2 |
+| # | Decisión | Respuesta |
+|---|----------|-----------|
+| 1 | Pasarela de pago | **RedSys TPV virtual + Bizum** |
+| 2 | Blog | **CMS propio** con feed de Instagram inicial; opción de vincular cada artículo a un post de IG |
+| 3 | Login de padres | **Magic link** (enlace por email, sin contraseña) |
+| 4 | Marketplaces en lanzamiento | **Miravia, Amazon, Vinted y Wallapop** · selector de canales por producto |
+| 5 | Dominio | Desarrollo en `mamapato.miarquitecto.com` → producción en `mamapatodebebes.com` al lanzar |
+| 6 | Hosting y emails transaccionales | **Pendiente** — cliente debe proporcionar datos de acceso |
+| 7 | Roles de acceso | **Administrador**, **Trabajador**, **Cliente** (creado, sin acceso al panel por ahora) |
+| 8 | Creación de cuenta de padres | Los padres se registran solos → **lista creada como borrador** → tienda recibe notificación para revisar y activar |
 
 ---
 
